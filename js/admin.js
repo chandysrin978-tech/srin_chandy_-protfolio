@@ -13,6 +13,7 @@
   let editingProjectId = null;
   let contentSettings = {};
   let dashboardReady = false;
+  let activePanel = "experience";
 
   function byId(id) {
     return document.getElementById(id);
@@ -83,11 +84,12 @@
     setStatus(el.authStatus, "", false);
   }
 
-  async function showDashboard(session) {
+  async  function showDashboard(session) {
     el.setupNotice.hidden = true;
     el.authCard.hidden = true;
     el.dashboard.hidden = false;
     el.signOut.hidden = false;
+    showPanel(activePanel);
     el.adminEmail.textContent = (session && session.user && session.user.email) || "admin";
     if (!dashboardReady) {
       dashboardReady = true;
@@ -647,10 +649,12 @@
       '" type="text" data-content-key="' +
       Data.escapeHtml(field.key) +
       '" data-type="image" placeholder="https://... or an uploaded URL">' +
+      '<div class="file-row">' +
       '<input type="file" class="content-image-file" accept="image/*">' +
       '<button type="button" class="btn-outline content-image-upload" data-upload-key="' +
       Data.escapeHtml(field.key) +
-      '"><i class="fas fa-upload"></i> Upload</button>';
+      '"><i class="fas fa-upload"></i> Upload</button>' +
+      "</div>";
     const saved = contentSettings[field.key];
     wrapper.querySelector('input[type="text"]').value = saved !== undefined ? saved : "";
     return wrapper;
@@ -691,7 +695,7 @@
 
     if (field.type === "url") {
       const wrapper = document.createElement("div");
-      wrapper.className = "field";
+      wrapper.className = "field field-wide";
       wrapper.innerHTML =
         '<label for="content-' +
         field.key +
@@ -708,46 +712,38 @@
       return wrapper;
     }
 
-    // text / textarea: an English and a Khmer input side by side.
+    // text / textarea: English and Khmer sit side by side in one row.
     const wrapper = document.createElement("div");
-    wrapper.className = "field field-wide";
+    wrapper.className = "field field-wide lang-pair";
     const multiline = field.type === "textarea";
-    const enId = "content-" + field.key + "-en";
-    const kmId = "content-" + field.key + "-km";
-    const tag = multiline ? "textarea" : "input";
-    const openTag =
-      tag === "textarea" ? '<textarea rows="3"' : '<input type="text"';
-    const closeTag = tag === "textarea" ? "></textarea>" : ">";
-    wrapper.innerHTML =
-      '<label for="' +
-      enId +
-      '">' +
-      Data.escapeHtml(field.label) +
-      " (English)</label>" +
-      openTag +
-      ' id="' +
-      enId +
-      '" data-content-key="' +
-      Data.escapeHtml(field.key) +
-      '" data-lang="en"' +
-      closeTag +
-      '<label for="' +
-      kmId +
-      '">' +
-      Data.escapeHtml(field.label) +
-      " (Khmer)</label>" +
-      openTag +
-      ' id="' +
-      kmId +
-      '" data-content-key="' +
-      Data.escapeHtml(field.key) +
-      '" data-lang="km"' +
-      closeTag;
 
-    const enValue = contentSettings[field.key + "_en"];
-    const kmValue = contentSettings[field.key + "_km"];
-    wrapper.querySelector("#" + enId).value = enValue !== undefined ? enValue : fieldDefault(field, "en");
-    wrapper.querySelector("#" + kmId).value = kmValue !== undefined ? kmValue : fieldDefault(field, "km");
+    ["en", "km"].forEach((lang) => {
+      const saved = contentSettings[field.key + "_" + lang];
+      const id = "content-" + field.key + "-" + lang;
+
+      const cell = document.createElement("div");
+      cell.className = "field";
+
+      const label = document.createElement("label");
+      label.setAttribute("for", id);
+      label.textContent = field.label + (lang === "en" ? " (English)" : " (Khmer)");
+
+      const input = document.createElement(multiline ? "textarea" : "input");
+      if (multiline) {
+        input.rows = 3;
+      } else {
+        input.type = "text";
+      }
+      input.id = id;
+      input.dataset.contentKey = field.key;
+      input.dataset.lang = lang;
+      input.value = saved !== undefined ? saved : fieldDefault(field, lang);
+
+      cell.appendChild(label);
+      cell.appendChild(input);
+      wrapper.appendChild(cell);
+    });
+
     return wrapper;
   }
 
@@ -760,23 +756,25 @@
       return;
     }
 
-    schema.getGroups().forEach((group) => {
-      const fieldset = document.createElement("fieldset");
-      fieldset.className = "field-group";
+    schema.getGroups().forEach((group, index) => {
+      // Collapsible groups keep the long field list scannable; open the first one.
+      const details = document.createElement("details");
+      details.className = "field-group";
+      details.open = index === 0;
 
-      const legend = document.createElement("legend");
-      legend.textContent = group.label;
-      fieldset.appendChild(legend);
+      const summary = document.createElement("summary");
+      summary.textContent = group.label;
+      details.appendChild(summary);
 
       const grid = document.createElement("div");
       grid.className = "form-grid";
-      fieldset.appendChild(grid);
+      details.appendChild(grid);
 
       group.fields.forEach((field) => {
         grid.appendChild(buildContentField(field));
       });
 
-      el.contentEditor.appendChild(fieldset);
+      el.contentEditor.appendChild(details);
     });
   }
 
@@ -853,6 +851,60 @@
   }
 
   // -------------------------------------------------------------------
+  // Tabs
+  // Only one dashboard panel is visible at a time, so the page stays short
+  // and each task (experiences, projects, CV, content) has its own screen.
+  // -------------------------------------------------------------------
+
+  function showPanel(name) {
+    activePanel = name;
+    document.querySelectorAll(".admin-panel").forEach((panel) => {
+      panel.hidden = panel.id !== "panel-" + name;
+    });
+    if (el.adminTabs) {
+      el.adminTabs.querySelectorAll("[data-panel]").forEach((tab) => {
+        const isActive = tab.dataset.panel === name;
+        tab.classList.toggle("active", isActive);
+        tab.setAttribute("aria-selected", isActive ? "true" : "false");
+      });
+    }
+  }
+
+  function handleTabClick(event) {
+    const tab = event.target.closest("[data-panel]");
+    if (tab) {
+      showPanel(tab.dataset.panel);
+    }
+  }
+
+  // -------------------------------------------------------------------
+  // Theme
+  // Uses the same "theme" localStorage key as the portfolio, so the choice
+  // carries over between admin.html and index.html.
+  // -------------------------------------------------------------------
+
+  function applyTheme(theme) {
+    const isDark = theme === "dark";
+    document.body.classList.toggle("dark-mode", isDark);
+
+    const toggle = el.themeToggle;
+    if (toggle) {
+      toggle.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+      const label = isDark ? "Switch to light mode" : "Switch to dark mode";
+      toggle.setAttribute("aria-label", label);
+      toggle.setAttribute("title", label);
+    }
+  }
+
+  function toggleTheme() {
+    const next = document.body.classList.contains("dark-mode") ? "light" : "dark";
+    applyTheme(next);
+    if (window.localStorage) {
+      localStorage.setItem("theme", next);
+    }
+  }
+
+  // -------------------------------------------------------------------
   // Boot
   // -------------------------------------------------------------------
 
@@ -866,7 +918,9 @@
       "login-password",
       "login-button",
       "sign-out",
+      "theme-toggle",
       "dashboard",
+      "admin-tabs",
       "admin-email",
       "cv-file",
       "cv-upload",
@@ -916,11 +970,15 @@
   }
 
   async function init() {
-    if (window.localStorage && localStorage.getItem("theme") === "dark") {
-      document.body.classList.add("dark-mode");
-    }
-
     cacheElements();
+
+    // Apply the saved theme (shared with the portfolio) and wire the toggle,
+    // so it works on the sign-in, setup and dashboard screens alike.
+    const savedTheme = (window.localStorage && localStorage.getItem("theme")) || "light";
+    applyTheme(savedTheme);
+    if (el.themeToggle) {
+      el.themeToggle.addEventListener("click", toggleTheme);
+    }
 
     if (!Data || typeof Data.isConfigured !== "function" || !Data.isConfigured()) {
       showSetupNotice();
@@ -943,6 +1001,9 @@
       loadContent();
     });
     el.contentEditor.addEventListener("click", handleContentEditorClick);
+    if (el.adminTabs) {
+      el.adminTabs.addEventListener("click", handleTabClick);
+    }
 
     const session = await Data.getSession();
     if (session) {

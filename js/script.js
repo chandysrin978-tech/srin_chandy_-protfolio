@@ -31,6 +31,29 @@ function scrollToTop() {
 
 let currentLanguage = localStorage.getItem("language") || "en";
 
+// Elements that style.css fades in once .in-view is added.
+const REVEAL_SELECTOR =
+  "section, .skill-category, .project, .resume-profile, .timeline, .contact-form";
+
+let revealObserver = null;
+
+/**
+ * Starts (or restarts) the fade-in observer for a set of elements.
+ * Content loaded from Supabase is created AFTER the first pass, so it must be
+ * handed to the observer again — otherwise .project cards stay at opacity: 0.
+ */
+function observeReveals(root) {
+  if (!revealObserver) {
+    return false;
+  }
+  (root || document).querySelectorAll(REVEAL_SELECTOR).forEach((element) => {
+    revealObserver.observe(element);
+  });
+  return true;
+}
+
+window.observeReveals = observeReveals;
+
 function applyLanguage(language) {
   currentLanguage = language;
   document.documentElement.lang = language === "km" ? "km" : "en";
@@ -102,7 +125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.remove("loading");
   }, 1400);
 
-  const observer = new IntersectionObserver(
+  revealObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -113,9 +136,9 @@ document.addEventListener("DOMContentLoaded", () => {
     { threshold: 0.12, rootMargin: "0px 0px -80px 0px" }
   );
 
-  document
-    .querySelectorAll("section, .skill-category, .project, .resume-profile, .timeline, .contact-form")
-    .forEach((element) => observer.observe(element));
+  document.querySelectorAll(REVEAL_SELECTOR).forEach((element) => {
+    revealObserver.observe(element);
+  });
 
   document.querySelectorAll("nav a").forEach((link) => {
     link.addEventListener("click", () => {

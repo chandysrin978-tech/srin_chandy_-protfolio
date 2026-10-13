@@ -389,6 +389,21 @@
     return `<article class="${classes}">\n${lines.join("\n")}\n</article>`;
   }
 
+  /**
+   * style.css keeps .project cards and sections at opacity: 0 until script.js
+   * marks them with .in-view. Cards built here are brand new nodes that the
+   * first observer pass never saw, so hand them to the observer again — or mark
+   * them directly when script.js is not on the page.
+   */
+  function revealContent(root) {
+    if (typeof window.observeReveals === "function" && window.observeReveals(root)) {
+      return;
+    }
+    (root || document).querySelectorAll(".project, section, .timeline").forEach((element) => {
+      element.classList.add("in-view");
+    });
+  }
+
   /** Replaces the project cards with the saved rows. Returns false when nothing changed. */
   function renderProjects(projects) {
     const container = document.getElementById(PROJECTS_LIST_ID);
@@ -396,6 +411,7 @@
       return false;
     }
     container.innerHTML = projects.map(buildProjectCardHTML).join("\n");
+    revealContent(container);
     refreshLanguage();
     return true;
   }

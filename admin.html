@@ -19,6 +19,10 @@
     <a class="brand" href="index.html" title="Back to the portfolio">SC</a>
     <span class="admin-topbar-title">Portfolio Admin</span>
     <div class="admin-topbar-actions">
+      <button id="theme-toggle" class="theme-toggle" type="button" title="Switch to dark mode"
+        aria-label="Switch to dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
       <a class="btn-outline" href="index.html"><i class="fas fa-eye"></i> View portfolio</a>
       <button id="sign-out" class="btn btn-small" type="button" hidden>
         <i class="fas fa-arrow-right-from-bracket"></i> Sign out
@@ -27,6 +31,7 @@
   </header>
 
   <main class="admin-wrap">
+    <!-- Shown when js/supabase-config.js is still empty. -->
     <section id="setup-notice" class="glass-card admin-card" hidden>
       <h1><i class="fas fa-plug"></i> Supabase is not connected yet</h1>
       <p class="admin-lead">
@@ -44,25 +49,36 @@
       <a class="btn btn-primary" href="index.html"><i class="fas fa-arrow-left"></i> Back to portfolio</a>
     </section>
 
+    <!-- Sign in -->
     <section id="auth-card" class="glass-card admin-card auth-card" hidden>
-      <h1>Admin sign in</h1>
-      <p class="admin-lead">Use the email and password of the user you created in Supabase.</p>
+      <div class="auth-brand">
+        <span class="auth-badge" aria-hidden="true">SC</span>
+        <div class="auth-brand-text">
+          <h1>Welcome back</h1>
+          <p class="admin-lead">Sign in to manage your portfolio.</p>
+        </div>
+      </div>
       <form id="login-form" class="admin-form" novalidate>
         <div class="field">
-          <label for="login-email">Email</label>
+          <label for="login-email"><i class="fas fa-envelope"></i> Email</label>
           <input id="login-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
         </div>
         <div class="field">
-          <label for="login-password">Password</label>
+          <label for="login-password"><i class="fas fa-lock"></i> Password</label>
           <input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Your password" required>
         </div>
-        <button id="login-button" class="btn btn-primary" type="submit">
+        <button id="login-button" class="btn btn-primary auth-submit" type="submit">
           <i class="fas fa-arrow-right-to-bracket"></i> Sign in
         </button>
         <p id="auth-status" class="status" aria-live="polite"></p>
       </form>
+      <p class="auth-foot">
+        <i class="fas fa-shield-halved"></i>
+        Only accounts you create in Supabase can sign in.
+      </p>
     </section>
 
+    <!-- Signed in -->
     <section id="dashboard" hidden>
       <div class="glass-card admin-card dashboard-head">
         <div>
@@ -71,9 +87,202 @@
         </div>
       </div>
 
-      <div class="admin-grid">
+      <!-- Deliberately a plain div, not a nav element: style.css styles a bare
+           nav as the portfolio's fixed top bar (position:fixed, z-index:1000),
+           which would cover the admin top bar. -->
+      <div id="admin-tabs" class="admin-tabs" role="tablist" aria-label="Admin sections">
+        <button class="admin-tab active" type="button" role="tab" data-panel="experience" aria-selected="true">
+          <i class="fas fa-clock-rotate-left"></i> Experience
+        </button>
+        <button class="admin-tab" type="button" role="tab" data-panel="projects" aria-selected="false">
+          <i class="fas fa-diagram-project"></i> Projects
+        </button>
+        <button class="admin-tab" type="button" role="tab" data-panel="cv" aria-selected="false">
+          <i class="fas fa-file-pdf"></i> CV
+        </button>
+        <button class="admin-tab" type="button" role="tab" data-panel="content" aria-selected="false">
+          <i class="fas fa-pen-to-square"></i> Site content
+        </button>
+      </div>
+
+      <!-- Experience -->
+      <section class="admin-panel" id="panel-experience" role="tabpanel" aria-label="Experience">
         <article class="glass-card admin-card">
-          <h2><i class="fas fa-file-pdf"></i> CV / Resume</h2>
+          <div class="card-head">
+            <h2><i class="fas fa-clock-rotate-left"></i> Experience entries</h2>
+            <p id="list-status" class="status card-status" aria-live="polite"></p>
+          </div>
+          <p class="admin-lead">These are the items in the resume timeline on your site.</p>
+          <ul id="experience-list" class="experience-list"></ul>
+        </article>
+
+        <article class="glass-card admin-card">
+          <h2 id="form-title"><i class="fas fa-pen"></i> Add experience</h2>
+          <p class="admin-lead">English text is required. Khmer fields are optional and used when a visitor switches language.</p>
+          <form id="experience-form" class="admin-form" novalidate>
+            <div class="form-grid">
+              <div class="field">
+                <label for="field-position">Order (position)</label>
+                <input id="field-position" name="position" type="number" min="0" step="1" value="1">
+                <small class="field-hint">Lower numbers appear first in the timeline.</small>
+              </div>
+              <div class="field">
+                <label for="field-period-en">Period (English)</label>
+                <input id="field-period-en" name="period_en" type="text" placeholder="Education | 2024 - Present" required>
+              </div>
+              <div class="field">
+                <label for="field-period-km">Period (Khmer)</label>
+                <input id="field-period-km" name="period_km" type="text" placeholder="ការអប់រំ | ២០២៤ - បច្ចុប្បន្ន">
+              </div>
+              <div class="field">
+                <label for="field-title-en">Title (English)</label>
+                <input id="field-title-en" name="title_en" type="text" placeholder="Associate Degree in Web Development" required>
+              </div>
+              <div class="field">
+                <label for="field-title-km">Title (Khmer)</label>
+                <input id="field-title-km" name="title_km" type="text" placeholder="បរិញ្ញាបត្ររងផ្នែកអភិវឌ្ឍន៍គេហទំព័រ">
+              </div>
+              <div class="field">
+                <label for="field-place">Place / organisation</label>
+                <input id="field-place" name="place" type="text" placeholder="Passerelles Numeriques Cambodia">
+              </div>
+              <div class="field field-wide">
+                <label for="field-description-en">Description (English)</label>
+                <textarea id="field-description-en" name="description_en" rows="3" placeholder="What you did, in one or two sentences."></textarea>
+              </div>
+              <div class="field field-wide">
+                <label for="field-description-km">Description (Khmer)</label>
+                <textarea id="field-description-km" name="description_km" rows="3" placeholder="ការពិពណ៌នាជាភាសាខ្មែរ (មិនចាំបាច់)"></textarea>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button id="save-experience" class="btn btn-primary" type="submit">
+                <i class="fas fa-floppy-disk"></i> Save experience
+              </button>
+              <button id="cancel-edit" class="btn-outline" type="button" hidden>Cancel</button>
+            </div>
+            <p id="form-status" class="status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+
+      <!-- Projects -->
+      <section class="admin-panel" id="panel-projects" role="tabpanel" aria-label="Projects" hidden>
+        <article class="glass-card admin-card">
+          <div class="card-head">
+            <h2><i class="fas fa-diagram-project"></i> Project cards</h2>
+            <p id="project-list-status" class="status card-status" aria-live="polite"></p>
+          </div>
+          <p class="admin-lead">Each project is one card in the Projects section of your site.</p>
+          <ul id="project-list" class="experience-list"></ul>
+        </article>
+
+        <article class="glass-card admin-card">
+          <h2 id="project-form-title"><i class="fas fa-plus"></i> Add project</h2>
+          <p class="admin-lead">Only the English title is required. Leave Khmer empty to reuse the English text.</p>
+          <form id="project-form" class="admin-form" novalidate>
+            <div class="form-grid">
+              <h3 class="form-section field-wide">Basics</h3>
+              <div class="field">
+                <label for="project-position">Order (position)</label>
+                <input id="project-position" name="position" type="number" min="0" step="1" value="1">
+                <small class="field-hint">Lower numbers appear first.</small>
+              </div>
+              <div class="field">
+                <label for="project-title">Title (English)</label>
+                <input id="project-title" name="title" type="text" placeholder="Khmer Handmade" required>
+              </div>
+              <div class="field">
+                <label for="project-title-km">Title (Khmer)</label>
+                <input id="project-title-km" name="title_km" type="text">
+              </div>
+              <div class="field">
+                <label for="project-type-en">Type (English)</label>
+                <input id="project-type-en" name="type_en" type="text" placeholder="E-commerce">
+              </div>
+              <div class="field">
+                <label for="project-type-km">Type (Khmer)</label>
+                <input id="project-type-km" name="type_km" type="text">
+              </div>
+              <div class="field">
+                <label for="project-tools">Tools</label>
+                <input id="project-tools" name="tools" type="text" placeholder="HTML, CSS, JavaScript">
+                <small class="field-hint">Shown under the title, separated by commas.</small>
+              </div>
+              <div class="field field-wide">
+                <label for="project-description-en">Description (English)</label>
+                <textarea id="project-description-en" name="description_en" rows="3"></textarea>
+              </div>
+              <div class="field field-wide">
+                <label for="project-description-km">Description (Khmer)</label>
+                <textarea id="project-description-km" name="description_km" rows="3"></textarea>
+              </div>
+
+              <h3 class="form-section field-wide">Image</h3>
+              <div class="field field-wide">
+                <label for="project-image-url">Image URL</label>
+                <input id="project-image-url" name="image_url" type="text" placeholder="images/handmade.png or an uploaded URL">
+                <small class="field-hint">Paste a URL, or choose a file and press Upload image.</small>
+              </div>
+              <div class="field field-wide">
+                <label for="project-image-file">Upload a new image</label>
+                <div class="file-row">
+                  <input id="project-image-file" type="file" accept="image/*">
+                  <button id="upload-project-image" class="btn-outline" type="button">
+                    <i class="fas fa-upload"></i> Upload image
+                  </button>
+                </div>
+              </div>
+
+              <h3 class="form-section field-wide">Links and buttons</h3>
+              <div class="field">
+                <label for="project-link1-url">First link URL</label>
+                <input id="project-link1-url" name="link1_url" type="text" placeholder="https://...">
+              </div>
+              <div class="field">
+                <label for="project-link1-en">First link label (English)</label>
+                <input id="project-link1-en" name="link1_en" type="text" placeholder="Live Demo">
+              </div>
+              <div class="field">
+                <label for="project-link1-km">First link label (Khmer)</label>
+                <input id="project-link1-km" name="link1_km" type="text">
+              </div>
+              <div class="field">
+                <label for="project-link2-url">Second link URL</label>
+                <input id="project-link2-url" name="link2_url" type="text" placeholder="https://...">
+              </div>
+              <div class="field">
+                <label for="project-link2-en">Second link label (English)</label>
+                <input id="project-link2-en" name="link2_en" type="text" placeholder="GitHub">
+              </div>
+              <div class="field">
+                <label for="project-link2-km">Second link label (Khmer)</label>
+                <input id="project-link2-km" name="link2_km" type="text">
+              </div>
+              <div class="field field-wide">
+                <label class="checkline" for="project-featured">
+                  <input id="project-featured" name="featured" type="checkbox">
+                  <span>Highlight this card (featured)</span>
+                </label>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button id="save-project" class="btn btn-primary" type="submit">
+                <i class="fas fa-floppy-disk"></i> Save project
+              </button>
+              <button id="cancel-project-edit" class="btn-outline" type="button" hidden>Cancel</button>
+            </div>
+            <p id="project-form-status" class="status" aria-live="polite"></p>
+          </form>
+        </article>
+      </section>
+
+      <!-- CV -->
+      <section class="admin-panel" id="panel-cv" role="tabpanel" aria-label="CV" hidden>
+        <article class="glass-card admin-card">
+          <div class="card-head">
+            <h2><i class="fas fa-file-pdf"></i> CV / Resume</h2>
+          </div>
           <p class="admin-lead">Upload a PDF to replace the file visitors download from the portfolio.</p>
           <p class="cv-meta">
             Current file:
@@ -84,174 +293,39 @@
             <label for="cv-file">New PDF file</label>
             <input id="cv-file" type="file" accept="application/pdf,.pdf">
           </div>
-          <button id="cv-upload" class="btn btn-primary btn-small" type="button">
-            <i class="fas fa-upload"></i> Upload new CV
-          </button>
+          <div class="form-actions">
+            <button id="cv-upload" class="btn btn-primary" type="button">
+              <i class="fas fa-upload"></i> Upload new CV
+            </button>
+          </div>
           <p id="cv-status" class="status" aria-live="polite"></p>
         </article>
+      </section>
 
+      <!-- Site content -->
+      <section class="admin-panel" id="panel-content" role="tabpanel" aria-label="Site content" hidden>
         <article class="glass-card admin-card">
           <div class="card-head">
-            <h2><i class="fas fa-list"></i> Experience entries</h2>
+            <h2><i class="fas fa-pen-to-square"></i> Site content</h2>
           </div>
-          <ul id="experience-list" class="experience-list"></ul>
-          <p id="list-status" class="status" aria-live="polite"></p>
+          <p class="admin-lead">
+            Open a section below to edit its text. Leave a field empty to keep the built-in default, and leave Khmer
+            empty to reuse the English text.
+          </p>
+          <form id="content-form" class="admin-form" novalidate>
+            <div id="content-editor"></div>
+            <div class="form-actions form-actions-sticky">
+              <button id="save-content" class="btn btn-primary" type="submit">
+                <i class="fas fa-floppy-disk"></i> Save content
+              </button>
+              <button id="reload-content" class="btn-outline" type="button">
+                <i class="fas fa-rotate"></i> Reload
+              </button>
+              <p id="content-status" class="status" aria-live="polite"></p>
+            </div>
+          </form>
         </article>
-      </div>
-
-      <article class="glass-card admin-card">
-        <div class="card-head">
-          <h2><i class="fas fa-diagram-project"></i> Project cards</h2>
-        </div>
-        <ul id="project-list" class="experience-list"></ul>
-        <p id="project-list-status" class="status" aria-live="polite"></p>
-
-        <h2 id="project-form-title"><i class="fas fa-plus"></i> Add project</h2>
-        <p class="admin-lead">Each project is one card in the Projects section. Leave Khmer empty to reuse the English text.</p>
-        <form id="project-form" class="admin-form" novalidate>
-          <div class="form-grid">
-            <div class="field">
-              <label for="project-position">Order (position)</label>
-              <input id="project-position" name="position" type="number" min="0" step="1" value="1">
-              <small class="field-hint">Lower numbers appear first.</small>
-            </div>
-            <div class="field">
-              <label for="project-title">Title (English)</label>
-              <input id="project-title" name="title" type="text" required>
-            </div>
-            <div class="field">
-              <label for="project-title-km">Title (Khmer)</label>
-              <input id="project-title-km" name="title_km" type="text">
-            </div>
-            <div class="field">
-              <label for="project-type-en">Type (English)</label>
-              <input id="project-type-en" name="type_en" type="text" placeholder="E-commerce">
-            </div>
-            <div class="field">
-              <label for="project-type-km">Type (Khmer)</label>
-              <input id="project-type-km" name="type_km" type="text">
-            </div>
-            <div class="field">
-              <label for="project-tools">Tools</label>
-              <input id="project-tools" name="tools" type="text" placeholder="HTML, CSS, JavaScript">
-            </div>
-            <div class="field field-wide">
-              <label for="project-description-en">Description (English)</label>
-              <textarea id="project-description-en" name="description_en" rows="3"></textarea>
-            </div>
-            <div class="field field-wide">
-              <label for="project-description-km">Description (Khmer)</label>
-              <textarea id="project-description-km" name="description_km" rows="3"></textarea>
-            </div>
-            <div class="field field-wide">
-              <label for="project-image-url">Image URL</label>
-              <input id="project-image-url" name="image_url" type="text" placeholder="images/handmade.png or an uploaded URL">
-              <small class="field-hint">Paste a URL, or upload a file below.</small>
-            </div>
-            <div class="field field-wide">
-              <label for="project-image-file">Upload image</label>
-              <input id="project-image-file" type="file" accept="image/*">
-              <button id="upload-project-image" class="btn-outline" type="button"><i class="fas fa-upload"></i> Upload image</button>
-            </div>
-            <div class="field">
-              <label for="project-link1-url">Link 1 URL</label>
-              <input id="project-link1-url" name="link1_url" type="text" placeholder="https://...">
-            </div>
-            <div class="field">
-              <label for="project-link1-en">Link 1 label (English)</label>
-              <input id="project-link1-en" name="link1_en" type="text" placeholder="Live Demo">
-            </div>
-            <div class="field">
-              <label for="project-link1-km">Link 1 label (Khmer)</label>
-              <input id="project-link1-km" name="link1_km" type="text">
-            </div>
-            <div class="field">
-              <label for="project-link2-url">Link 2 URL</label>
-              <input id="project-link2-url" name="link2_url" type="text" placeholder="https://...">
-            </div>
-            <div class="field">
-              <label for="project-link2-en">Link 2 label (English)</label>
-              <input id="project-link2-en" name="link2_en" type="text" placeholder="GitHub">
-            </div>
-            <div class="field">
-              <label for="project-link2-km">Link 2 label (Khmer)</label>
-              <input id="project-link2-km" name="link2_km" type="text">
-            </div>
-            <div class="field">
-              <label for="project-featured"><input id="project-featured" name="featured" type="checkbox"> Featured card</label>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button id="save-project" class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Save project</button>
-            <button id="cancel-project-edit" class="btn-outline" type="button" hidden>Cancel</button>
-          </div>
-          <p id="project-form-status" class="status" aria-live="polite"></p>
-        </form>
-      </article>
-
-      <article class="glass-card admin-card">
-        <h2 id="form-title"><i class="fas fa-pen"></i> Add experience</h2>
-        <p class="admin-lead">English text is required. Khmer fields are optional and used when a visitor switches language.</p>
-        <form id="experience-form" class="admin-form" novalidate>
-          <div class="form-grid">
-            <div class="field">
-              <label for="field-position">Order (position)</label>
-              <input id="field-position" name="position" type="number" min="0" step="1" value="1">
-              <small class="field-hint">Lower numbers appear first in the timeline.</small>
-            </div>
-            <div class="field">
-              <label for="field-period-en">Period (English)</label>
-              <input id="field-period-en" name="period_en" type="text" placeholder="Education | 2024 - Present" required>
-            </div>
-            <div class="field">
-              <label for="field-period-km">Period (Khmer)</label>
-              <input id="field-period-km" name="period_km" type="text" placeholder="ការអប់រំ | ២០២៤ - បច្ចុប្បន្ន">
-            </div>
-            <div class="field">
-              <label for="field-title-en">Title (English)</label>
-              <input id="field-title-en" name="title_en" type="text" placeholder="Associate Degree in Web Development" required>
-            </div>
-            <div class="field">
-              <label for="field-title-km">Title (Khmer)</label>
-              <input id="field-title-km" name="title_km" type="text" placeholder="បរិញ្ញាបត្ររងផ្នែកអភិវឌ្ឍន៍គេហទំព័រ">
-            </div>
-            <div class="field">
-              <label for="field-place">Place / organisation</label>
-              <input id="field-place" name="place" type="text" placeholder="Passerelles Numeriques Cambodia">
-            </div>
-            <div class="field field-wide">
-              <label for="field-description-en">Description (English)</label>
-              <textarea id="field-description-en" name="description_en" rows="3" placeholder="What you did, in one or two sentences."></textarea>
-            </div>
-            <div class="field field-wide">
-              <label for="field-description-km">Description (Khmer)</label>
-              <textarea id="field-description-km" name="description_km" rows="3" placeholder="ការពិពណ៌នាជាភាសាខ្មែរ (មិនចាំបាច់)"></textarea>
-            </div>
-          </div>
-          <div class="form-actions">
-            <button id="save-experience" class="btn btn-primary" type="submit">
-              <i class="fas fa-floppy-disk"></i> Save experience
-            </button>
-            <button id="cancel-edit" class="btn-outline" type="button" hidden>Cancel</button>
-          </div>
-          <p id="form-status" class="status" aria-live="polite"></p>
-        </form>
-      </article>
-
-      <article class="glass-card admin-card">
-        <div class="card-head">
-          <h2><i class="fas fa-pen-to-square"></i> Site content</h2>
-        </div>
-        <p class="admin-lead">Edit the text of every section. Leave a field empty to keep the built-in default. Khmer is optional.</p>
-        <form id="content-form" class="admin-form" novalidate>
-          <div id="content-editor"></div>
-          <div class="form-actions">
-            <button id="save-content" class="btn btn-primary" type="submit"><i class="fas fa-floppy-disk"></i> Save content</button>
-            <button id="reload-content" class="btn-outline" type="button"><i class="fas fa-rotate"></i> Reload</button>
-          </div>
-          <p id="content-status" class="status" aria-live="polite"></p>
-        </form>
-      </article>
+      </section>
     </section>
   </main>
 

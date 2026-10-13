@@ -1,18 +1,42 @@
-/* Admin panel layout. Built on the variables and components from css/style.css. */
+/* Admin panel styles. Built on the variables and components from css/style.css.
+   Layout: sticky top bar -> sign-in card OR dashboard (header + tabs + one panel). */
+
+:root {
+  /* More opaque than the portfolio glass so form text stays easy to read. */
+  --admin-card-bg: rgba(255, 255, 255, 0.9);
+}
+
+body.dark-mode {
+  --admin-card-bg: rgba(15, 23, 42, 0.86);
+}
 
 [hidden] {
   display: none !important;
 }
 
-/* style.css fades <section> in with .in-view from script.js. The admin page has
-   no scroll observer, so keep its sections visible. */
+/* style.css styles bare elements for the portfolio and several of them fight
+   this dashboard, so neutralise them here (admin.css loads after style.css):
+   - <section> fades in via .in-view (there is no scroll observer here) and
+     carries the portfolio's huge section padding, which squeezed every card
+     into a narrow column with large empty gaps;
+   - headings inherit the portfolio's clamp() sizes and max-widths. */
 .admin-wrap section {
+  padding: 0;
   opacity: 1;
   transform: none;
 }
 
+.admin-card h1,
+.admin-card h2 {
+  max-width: none;
+}
+
 body {
   padding-bottom: 4rem;
+  /* Calmer background than the portfolio: less glare behind form text. */
+  background:
+    radial-gradient(circle at 15% 0%, rgba(139, 92, 246, 0.1), transparent 24rem),
+    linear-gradient(160deg, var(--bg-primary), var(--bg-secondary));
 }
 
 code {
@@ -22,6 +46,32 @@ code {
   border-radius: 0.4rem;
 }
 
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+
+.admin-wrap {
+  width: min(64rem, 100%);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 4vw, 2rem) 0;
+}
+
+.admin-card {
+  padding: clamp(1.15rem, 2.5vw, 1.6rem);
+  background: var(--admin-card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.dashboard-head {
+  margin-bottom: 1.25rem;
+}
+
+/* --------------------------------------------------------------------------
+   Top bar
+   -------------------------------------------------------------------------- */
+
 .admin-topbar {
   position: sticky;
   top: 0;
@@ -30,9 +80,10 @@ code {
   flex-wrap: wrap;
   gap: 0.75rem 1rem;
   align-items: center;
-  padding: 0.85rem clamp(1rem, 4vw, 2.5rem);
+  padding: 0.8rem clamp(1rem, 4vw, 2.5rem);
   background: var(--glass-bg);
   border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
   backdrop-filter: blur(18px);
 }
 
@@ -51,6 +102,7 @@ code {
 
 .admin-topbar-title {
   flex: 1 1 auto;
+  letter-spacing: 0.01em;
   font-family: "Poppins", system-ui, sans-serif;
   font-weight: 700;
 }
@@ -62,21 +114,154 @@ code {
   align-items: center;
 }
 
-.admin-wrap {
-  width: min(68rem, 100%);
+.admin-topbar-actions .btn-outline,
+.admin-topbar-actions .btn {
+  min-height: 2.5rem;
+}
+
+.admin-topbar .theme-toggle {
+  flex: 0 0 auto;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.admin-topbar .theme-toggle:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   Sign in
+   -------------------------------------------------------------------------- */
+
+.auth-card {
+  position: relative;
+  width: min(27rem, 100%);
   margin-inline: auto;
-  padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 0;
+  padding: 2rem;
+  overflow: hidden;
 }
 
-.admin-card {
-  padding: 1.5rem;
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--gradient);
 }
 
-.admin-card + .admin-card,
-.admin-grid + .admin-card,
-.dashboard-head + .admin-grid {
-  margin-top: 1.5rem;
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
 }
+
+.auth-badge {
+  display: grid;
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  color: white;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  background: var(--gradient);
+  border-radius: 1rem;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.3);
+}
+
+.auth-brand-text h1 {
+  margin-bottom: 0.1rem;
+}
+
+.auth-brand-text .admin-lead {
+  margin-bottom: 0;
+}
+
+.auth-submit {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.auth-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding-top: 1.15rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.auth-foot i {
+  color: var(--primary);
+}
+
+/* --------------------------------------------------------------------------
+   Tabs: one section visible at a time
+   -------------------------------------------------------------------------- */
+
+.admin-tabs {
+  /* Never inherit the portfolio's fixed <nav> positioning. */
+  position: static;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  margin-bottom: 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+}
+
+.admin-tab {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  color: var(--text-secondary);
+  font: inherit;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.admin-tab:hover {
+  color: var(--text-primary);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.admin-tab.active,
+.admin-tab.active:hover {
+  color: white;
+  background: var(--gradient);
+  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.28);
+}
+
+.admin-tab:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.admin-panel {
+  display: grid;
+  gap: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   Card headings and text
+   -------------------------------------------------------------------------- */
 
 .admin-card h1,
 .admin-card h2 {
@@ -84,16 +269,39 @@ code {
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.65rem;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
 }
 
 .admin-card h1 {
   font-size: 1.5rem;
 }
 
+.admin-card h2 i,
+.dashboard-head h1 i {
+  color: var(--primary);
+}
+
 .admin-lead {
   margin-bottom: 1.1rem;
   color: var(--text-secondary);
+}
+
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-head h2 {
+  margin-bottom: 0;
+}
+
+.card-status {
+  flex: 0 0 auto;
+  margin: 0;
+  font-size: 0.85rem;
 }
 
 .admin-steps {
@@ -108,25 +316,9 @@ code {
   font-weight: 700;
 }
 
-.dashboard-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.auth-card {
-  width: min(30rem, 100%);
-  margin-inline: auto;
-}
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
-  gap: 1.5rem;
-  align-items: start;
-}
+/* --------------------------------------------------------------------------
+   Forms
+   -------------------------------------------------------------------------- */
 
 .admin-form {
   display: grid;
@@ -147,36 +339,10 @@ code {
   font-size: 0.82rem;
 }
 
-.admin-form input,
-.admin-form textarea {
-  width: 100%;
-  padding: 0.8rem 0.95rem;
-  color: var(--text-primary);
-  font: inherit;
-  background: rgba(255, 255, 255, 0.56);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-}
-
-.admin-form input[type="file"] {
-  padding: 0.6rem 0.75rem;
-  background: transparent;
-  border-style: dashed;
-}
-
-body.dark-mode .admin-form input,
-body.dark-mode .admin-form textarea {
-  background: rgba(15, 23, 42, 0.5);
-}
-
-.admin-form textarea {
-  resize: vertical;
-}
-
-.admin-form input:focus-visible,
-.admin-form textarea:focus-visible {
-  outline: 2px solid rgba(124, 58, 237, 0.45);
-  outline-offset: 1px;
+.field label i {
+  width: 1rem;
+  margin-right: 0.1rem;
+  color: var(--primary);
 }
 
 .form-grid {
@@ -189,15 +355,163 @@ body.dark-mode .admin-form textarea {
   grid-column: 1 / -1;
 }
 
+/* Groups a long form into readable blocks (Basics / Image / Links). */
+.form-section {
+  margin: 0.35rem 0 0;
+  padding-top: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+/* Text inputs and textareas only - checkboxes must keep their natural size. */
+.admin-form input:not([type="checkbox"]):not([type="radio"]),
+.admin-form textarea {
+  width: 100%;
+  padding: 0.8rem 0.95rem;
+  color: var(--text-primary);
+  font: inherit;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+body.dark-mode .admin-form input:not([type="checkbox"]):not([type="radio"]),
+body.dark-mode .admin-form textarea {
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.admin-form textarea {
+  resize: vertical;
+}
+
+.admin-form input[type="file"] {
+  padding: 0.45rem 0.5rem;
+  background: transparent;
+  border-style: dashed;
+  cursor: pointer;
+}
+
+/* Replaces the browser's default "Choose File" control with a themed button. */
+.admin-form input[type="file"]::file-selector-button,
+.admin-form input[type="file"]::-webkit-file-upload-button {
+  margin-right: 0.65rem;
+  padding: 0.55rem 0.95rem;
+  color: var(--primary);
+  font: inherit;
+  font-weight: 700;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid var(--border-color);
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-form input[type="file"]::file-selector-button:hover,
+.admin-form input[type="file"]::-webkit-file-upload-button:hover {
+  color: white;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.admin-form input::placeholder,
+.admin-form textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.admin-form input:not([type="checkbox"]):hover:not(:focus),
+.admin-form textarea:hover:not(:focus) {
+  border-color: rgba(124, 58, 237, 0.34);
+}
+
+.admin-form input:focus-visible,
+.admin-form textarea:focus-visible {
+  border-color: transparent;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.24);
+}
+
+/* Checkbox row */
+.checkline {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-form .checkline input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 1.15rem;
+  height: 1.15rem;
+  accent-color: var(--primary);
+}
+
+/* English and Khmer side by side instead of stacked, roughly halving the scroll. */
+.lang-pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+/* A file input and its upload button share one row. */
+.file-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.file-row input[type="file"] {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.file-row .btn-outline {
+  flex: 0 0 auto;
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.7rem;
+  align-items: center;
 }
 
 .admin-form .btn,
-.cv-meta + .field + .btn {
+.admin-form .field .btn-outline {
   justify-self: start;
+}
+
+/* Docks the Save/Reload toolbar to the bottom while scrolling the long form. */
+.form-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-bottom: 0;
+  border-radius: 1rem 1rem 0 0;
+  box-shadow: 0 -10px 30px rgba(79, 70, 229, 0.12);
+}
+
+#content-editor {
+  padding-bottom: 0.5rem;
+}
+
+.form-actions-sticky .status {
+  margin-left: auto;
+  text-align: right;
 }
 
 .status {
@@ -215,6 +529,75 @@ body.dark-mode .admin-form textarea {
   color: #dc2626;
 }
 
+/* --------------------------------------------------------------------------
+   Site content groups (collapsible)
+   -------------------------------------------------------------------------- */
+
+.field-group {
+  margin-bottom: 0.75rem;
+  background: rgba(124, 58, 237, 0.04);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.field-group[open] {
+  background: rgba(124, 58, 237, 0.07);
+}
+
+body.dark-mode .field-group {
+  background: rgba(124, 58, 237, 0.12);
+}
+
+body.dark-mode .field-group[open] {
+  background: rgba(124, 58, 237, 0.18);
+}
+
+.field-group > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.05rem;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+
+.field-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Chevron drawn with borders so it never depends on an icon font. */
+.field-group > summary::after {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-left: auto;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  opacity: 0.6;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.field-group[open] > summary::after {
+  transform: rotate(225deg);
+}
+
+.field-group > summary:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.field-group .form-grid {
+  padding: 0.15rem 1.05rem 1.1rem;
+}
+
+/* --------------------------------------------------------------------------
+   CV
+   -------------------------------------------------------------------------- */
+
 .cv-meta {
   margin-bottom: 0.75rem;
   color: var(--text-secondary);
@@ -226,18 +609,14 @@ body.dark-mode .admin-form textarea {
   font-weight: 700;
 }
 
-.card-head {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  justify-content: space-between;
-}
+/* --------------------------------------------------------------------------
+   Experience / project lists
+   -------------------------------------------------------------------------- */
 
 .experience-list {
   display: grid;
   gap: 0.85rem;
-  margin: 0 0 0.85rem;
+  margin: 0;
   list-style: none;
 }
 
@@ -248,13 +627,20 @@ body.dark-mode .admin-form textarea {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.1rem;
-  background: rgba(255, 255, 255, 0.42);
+  background: rgba(255, 255, 255, 0.5);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 body.dark-mode .experience-row {
-  background: rgba(15, 23, 42, 0.42);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.experience-row:hover {
+  transform: translateY(-1px);
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.12);
 }
 
 .experience-row-main {
@@ -296,10 +682,14 @@ body.dark-mode .experience-row {
 }
 
 .empty-state {
-  padding: 1rem 0;
+  padding: 1.25rem 0;
   color: var(--text-muted);
   text-align: center;
 }
+
+/* --------------------------------------------------------------------------
+   Small screens
+   -------------------------------------------------------------------------- */
 
 @media (max-width: 640px) {
   .admin-topbar-actions {
@@ -310,23 +700,27 @@ body.dark-mode .experience-row {
   .admin-topbar-actions .btn {
     flex: 1 1 auto;
   }
-}
 
-/* Generated "Site content" editor: one bordered group per section of the page. */
-.field-group {
-  padding: 1rem 1.1rem 1.15rem;
-  margin: 0 0 1.1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-}
+  .auth-card {
+    padding: 1.5rem;
+  }
 
-.field-group legend {
-  padding: 0 0.5rem;
-  font-family: "Poppins", system-ui, sans-serif;
-  font-weight: 700;
-}
+  .admin-tab {
+    flex: 1 1 45%;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+  }
 
-/* Upload buttons sit under their text input instead of stretching across the form. */
-.admin-form .field .btn-outline {
-  justify-self: start;
+  .lang-pair {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .file-row .btn-outline {
+    flex: 1 1 auto;
+  }
+
+  .form-actions-sticky .status {
+    margin-left: 0;
+    text-align: left;
+  }
 }
