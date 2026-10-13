@@ -9,11 +9,14 @@
  */
 (function () {
   const CONFIG = window.PORTFOLIO_CONFIG || {};
-  const TABLES = { experiences: "experiences", settings: "site_settings" };
+  const TABLES = { experiences: "experiences", projects: "projects", settings: "site_settings" };
   const CV_BUCKET = "cv";
   const CV_FILE_NAME = "SrinChandy_CV.pdf";
   const DEFAULT_CV_URL = "assets/SrinChandy_CV.pdf";
   const EXPERIENCE_LIST_ID = "experience-timeline";
+  const MEDIA_BUCKET = "media";
+  const PROJECTS_LIST_ID = "projects-list";
+  const PROJECT_IMAGE_FALLBACK = "images/about.png";
 
   let client = null;
 
@@ -141,7 +144,59 @@
   }
 
   // -------------------------------------------------------------------------
-  // Site settings (CV link and other small values)
+  // Projects
+  // -------------------------------------------------------------------------
+
+  async function fetchProjects() {
+    const activeClient = getClient();
+    if (!activeClient) {
+      return null;
+    }
+    const { data, error } = await activeClient
+      .from(TABLES.projects)
+      .select("*")
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) {
+      throw error;
+    }
+    return data || [];
+  }
+
+  async function createProject(project) {
+    const { data, error } = await requireClient()
+      .from(TABLES.projects)
+      .insert(project)
+      .select()
+      .single();
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
+  async function updateProject(id, project) {
+    const { data, error } = await requireClient()
+      .from(TABLES.projects)
+      .update(project)
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) {
+      throw error;
+    }
+    return data;
+  }
+
+  async function deleteProject(id) {
+    const { error } = await requireClient().from(TABLES.projects).delete().eq("id", id);
+    if (error) {
+      throw error;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Site settings (CV link and every editable text value)
   // -------------------------------------------------------------------------
 
   async function fetchSettings() {
@@ -188,6 +243,25 @@
     await upsertSetting("cv_name", file.name || CV_FILE_NAME);
     await upsertSetting("cv_updated_at", new Date().toISOString());
     return { url, name: file.name || CV_FILE_NAME };
+  }
+
+  async function uploadImage(file) {
+    if (!file) {
+      throw new Error("Choose an image file first.");
+    }
+    const activeClient = requireClient();
+    const safeName = String(file.name || "image").replace(/[^a-zA-Z0-9._-]/g, "-").toLowerCase();
+    const path = `uploads/${Date.now()}-${safeName}`;
+    const { error } = await activeClient.storage.from(MEDIA_BUCKET).upload(path, file, {
+      upsert: false,
+      contentType: file.type || undefined,
+      cacheControl: "3600",
+    });
+    if (error) {
+      throw error;
+    }
+    const { data } = activeClient.storage.from(MEDIA_BUCKET).getPublicUrl(path);
+    return data.publicUrl;
   }
 
   // -------------------------------------------------------------------------
@@ -245,6 +319,176 @@
     return true;
   }
 
+  function buildProjectLink(url, labelEn, labelKm, className) {
+    if (!url) {
+      return "";
+    }
+    const en = labelEn || labelKm || "Link";
+    const km = labelKm || labelEn || en;
+    const isAnchor = String(url).charAt(0) === "#";
+    const attrs = isAnchor ? "" : ' target="_blank" rel="noopener"';
+    return (
+      '<a href="' +
+      escapeHtml(url) +
+      '"' +
+      attrs +
+      ' class="' +
+      className +
+      '" data-en="' +
+      escapeHtml(en) +
+      '" data-km="' +
+      escapeHtml(km) +
+      '">' +
+      escapeHtml(en) +
+      "</a>"
+    );
+  }
+
+  function buildProjectCardHTML(project) {
+    const item = project || {};
+    const typeEn = item.type_en || "";
+    const typeKm = item.type_km || typeEn;
+    const title = item.title || "";
+    const titleKm = item.title_km || title;
+    const tools = item.tools || "";
+    const descEn = item.description_en || "";
+    const descKm = item.description_km || descEn;
+    const image = item.image_url || PROJECT_IMAGE_FALLBACK;
+
+    const lines = [
+      `<img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" loading="lazy">`,
+      '<div class="project-content">',
+    ];
+
+    if (typeEn || typeKm) {
+      lines.push(
+        `<span class="project-type" data-en="${escapeHtml(typeEn)}" data-km="${escapeHtml(typeKm)}">${escapeHtml(
+          typeEn || typeKm
+        )}</span>`
+      );
+    }
+    lines.push(`<h3 data-en="${escapeHtml(title)}" data-km="${escapeHtml(titleKm)}">${escapeHtml(title)}</h3>`);
+    if (tools) {
+      lines.push(`<div class="project-tools">${escapeHtml(tools)}</div>`);
+    }
+    if (descEn || descKm) {
+      lines.push(
+        `<p data-en="${escapeHtml(descEn)}" data-km="${escapeHtml(descKm)}">${escapeHtml(descEn || descKm)}</p>`
+      );
+    }
+
+    const links =
+      buildProjectLink(item.link1_url, item.link1_en, item.link1_km, "btn btn-small") +
+      buildProjectLink(item.link2_url, item.link2_en, item.link2_km, "btn-outline");
+    if (links) {
+      lines.push(`<div class="project-links">${links}</div>`);
+    }
+    lines.push("</div>");
+
+    const classes = "project glass-card" + (item.featured ? " featured-project" : "");
+    return `<article class="${classes}">\n${lines.join("\n")}\n</article>`;
+  }
+
+  /** Replaces the project cards with the saved rows. Returns false when nothing changed. */
+  function renderProjects(projects) {
+    const container = document.getElementById(PROJECTS_LIST_ID);
+    if (!container || !projects || !projects.length) {
+      return false;
+    }
+    container.innerHTML = projects.map(buildProjectCardHTML).join("\n");
+    refreshLanguage();
+    return true;
+  }
+
+  /**
+   * Applies saved site_settings values to the page, using the content schema in
+   * js/content-schema.js. Bilingual fields write data-en/data-km (so the
+   * language toggle keeps working); url fields write href; image fields write src.
+   * Values that were never saved are skipped, leaving the built-in HTML alone.
+   */
+  function applyContent(settings) {
+    const schema = window.PORTFOLIO_CONTENT;
+    if (!schema || typeof schema.getFields !== "function" || !settings) {
+      return false;
+    }
+    let changed = false;
+
+    schema.getFields().forEach((field) => {
+      if (field.type === "list") {
+        const raw = settings[field.key];
+        if (typeof raw !== "string" || !raw) {
+          return;
+        }
+        let items;
+        try {
+          items = JSON.parse(raw);
+        } catch (error) {
+          return;
+        }
+        if (!Array.isArray(items) || !items.length) {
+          return;
+        }
+        const html = items
+          .map((item) => {
+            const en = (item && (item.en || item.km)) || "";
+            const km = (item && (item.km || item.en)) || "";
+            return `<span data-en="${escapeHtml(en)}" data-km="${escapeHtml(km)}">${escapeHtml(en)}</span>`;
+          })
+          .join("");
+        document.querySelectorAll(`[data-content-list="${field.key}"]`).forEach((container) => {
+          container.innerHTML = html;
+          changed = true;
+        });
+        return;
+      }
+
+      if (field.type === "url") {
+        const value = settings[field.key];
+        if (typeof value !== "string" || !value) {
+          return;
+        }
+        document.querySelectorAll(`[data-content-href="${field.key}"]`).forEach((link) => {
+          link.setAttribute("href", value);
+          changed = true;
+        });
+        return;
+      }
+
+      if (field.type === "image") {
+        const value = settings[field.key];
+        if (typeof value !== "string" || !value) {
+          return;
+        }
+        document.querySelectorAll(`[data-content-src="${field.key}"]`).forEach((image) => {
+          image.setAttribute("src", value);
+          changed = true;
+        });
+        return;
+      }
+
+      const en = settings[`${field.key}_en`];
+      const km = settings[`${field.key}_km`];
+      const hasEn = typeof en === "string" && en.length > 0;
+      const hasKm = typeof km === "string" && km.length > 0;
+      if (!hasEn && !hasKm) {
+        return;
+      }
+      const finalEn = hasEn ? en : km;
+      const finalKm = hasKm ? km : en;
+      document.querySelectorAll(`[data-content="${field.key}"]`).forEach((element) => {
+        element.dataset.en = finalEn;
+        element.dataset.km = finalKm;
+        element.textContent = finalEn;
+        changed = true;
+      });
+    });
+
+    if (changed) {
+      refreshLanguage();
+    }
+    return changed;
+  }
+
   /** Points every [data-cv-link] element at the uploaded CV, or the bundled fallback. */
   function renderCv(settings) {
     const configuredUrl = settings && settings.cv_url ? settings.cv_url : "";
@@ -268,9 +512,15 @@
       return false;
     }
     try {
-      const [entries, settings] = await Promise.all([fetchExperiences(), fetchSettings()]);
+      const [entries, projects, settings] = await Promise.all([
+        fetchExperiences(),
+        fetchProjects(),
+        fetchSettings(),
+      ]);
       renderExperiences(entries);
+      renderProjects(projects);
       renderCv(settings);
+      applyContent(settings);
       return true;
     } catch (error) {
       console.warn("Could not load saved portfolio content, keeping the built-in content.", error);
@@ -284,6 +534,9 @@
     CV_FILE_NAME,
     DEFAULT_CV_URL,
     EXPERIENCE_LIST_ID,
+    MEDIA_BUCKET,
+    PROJECTS_LIST_ID,
+    PROJECT_IMAGE_FALLBACK,
     isConfigured,
     getClient,
     signIn,
@@ -294,13 +547,21 @@
     createExperience,
     updateExperience,
     deleteExperience,
+    fetchProjects,
+    createProject,
+    updateProject,
+    deleteProject,
     fetchSettings,
     upsertSetting,
     uploadCv,
+    uploadImage,
     escapeHtml,
     buildExperienceItemHTML,
+    buildProjectCardHTML,
     renderExperiences,
+    renderProjects,
     renderCv,
+    applyContent,
     initPortfolio,
   };
 })();

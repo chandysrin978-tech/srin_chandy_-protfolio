@@ -311,3 +311,22 @@ body.dark-mode .experience-row {
     flex: 1 1 auto;
   }
 }
+
+/* Generated "Site content" editor: one bordered group per section of the page. */
+.field-group {
+  padding: 1rem 1.1rem 1.15rem;
+  margin: 0 0 1.1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+}
+
+.field-group legend {
+  padding: 0 0.5rem;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+/* Upload buttons sit under their text input instead of stretching across the form. */
+.admin-form .field .btn-outline {
+  justify-self: start;
+}

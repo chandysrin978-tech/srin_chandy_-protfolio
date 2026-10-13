@@ -1,6 +1,8 @@
 -- Portfolio admin schema (Supabase / PostgreSQL)
 -- Run this once in the Supabase dashboard: SQL Editor -> New query -> paste -> Run.
 -- It is safe to run again: policies are dropped and recreated, seeds are skipped when rows exist.
+-- Tables: experiences (resume timeline), projects (project cards), site_settings (every editable text).
+-- Buckets: cv (the downloadable PDF) and media (uploaded images).
 
 create extension if not exists pgcrypto;
 
@@ -152,3 +154,151 @@ select * from (values
   )
 ) as seed
 where not exists (select 1 from public.experiences);
+
+-- ---------------------------------------------------------------------------
+-- Projects: the cards in the "Projects" section of the portfolio
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.projects (
+  id uuid primary key default gen_random_uuid(),
+  position integer not null default 0,
+  type_en text not null default '',
+  type_km text not null default '',
+  title text not null default '',
+  title_km text not null default '',
+  tools text not null default '',
+  description_en text not null default '',
+  description_km text not null default '',
+  image_url text not null default '',
+  link1_url text not null default '',
+  link1_en text not null default '',
+  link1_km text not null default '',
+  link2_url text not null default '',
+  link2_en text not null default '',
+  link2_km text not null default '',
+  featured boolean not null default false,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists projects_position_idx on public.projects (position);
+
+alter table public.projects enable row level security;
+
+drop policy if exists "Public can read projects" on public.projects;
+create policy "Public can read projects"
+  on public.projects for select
+  to anon, authenticated
+  using (true);
+
+drop policy if exists "Admin can insert projects" on public.projects;
+create policy "Admin can insert projects"
+  on public.projects for insert
+  to authenticated
+  with check (true);
+
+drop policy if exists "Admin can update projects" on public.projects;
+create policy "Admin can update projects"
+  on public.projects for update
+  to authenticated
+  using (true)
+  with check (true);
+
+drop policy if exists "Admin can delete projects" on public.projects;
+create policy "Admin can delete projects"
+  on public.projects for delete
+  to authenticated
+  using (true);
+
+-- ---------------------------------------------------------------------------
+-- Storage bucket for uploaded images (hero, about, project screenshots)
+-- ---------------------------------------------------------------------------
+
+insert into storage.buckets (id, name, public)
+values ('media', 'media', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "Public can read media" on storage.objects;
+create policy "Public can read media"
+  on storage.objects for select
+  to anon, authenticated
+  using (bucket_id = 'media');
+
+drop policy if exists "Admin can upload media" on storage.objects;
+create policy "Admin can upload media"
+  on storage.objects for insert
+  to authenticated
+  with check (bucket_id = 'media');
+
+drop policy if exists "Admin can update media" on storage.objects;
+create policy "Admin can update media"
+  on storage.objects for update
+  to authenticated
+  using (bucket_id = 'media')
+  with check (bucket_id = 'media');
+
+drop policy if exists "Admin can delete media" on storage.objects;
+create policy "Admin can delete media"
+  on storage.objects for delete
+  to authenticated
+  using (bucket_id = 'media');
+
+-- ---------------------------------------------------------------------------
+-- Seed the project cards with the content currently hard-coded in index.html
+-- ---------------------------------------------------------------------------
+
+insert into public.projects
+  (position, type_en, type_km, title, title_km, tools, description_en, description_km,
+   image_url, link1_url, link1_en, link1_km, link2_url, link2_en, link2_km, featured)
+select * from (values
+  (
+    1, 'E-commerce', 'គេហទំព័រលក់ទំនិញ', 'Khmer Handmade', 'Khmer Handmade',
+    'HTML, CSS, JavaScript, Vercel',
+    'An online shop concept for Khmer handmade products with responsive pages and smooth browsing.',
+    'គំនិតហាងអនឡាញសម្រាប់ផលិតផលធ្វើដោយដៃរបស់ខ្មែរ មានទំព័រឆ្លើយតបល្អ និងងាយស្រួលមើល។',
+    'images/handmade.png',
+    'https://wed-desgin-project.vercel.app/', 'Live Demo', 'មើលគំរូ',
+    'https://github.com/wed-desgin-project', 'GitHub', 'GitHub',
+    false
+  ),
+  (
+    2, 'JavaScript Game', 'ហ្គេម JavaScript', 'Tic-Tac-Toe Game', 'ហ្គេម Tic-Tac-Toe',
+    'HTML, CSS, JavaScript',
+    'A simple interactive browser game with clean logic, playful states, and a mobile-friendly layout.',
+    'ហ្គេមលេងក្នុង browser ដែលមាន logic ស្អាត ស្ថានភាពលេងច្បាស់ និង layout សមស្របសម្រាប់ទូរស័ព្ទ។',
+    'images/tictaetoe.png',
+    'https://wed-desgin-project.vercel.app/', 'Live Demo', 'មើលគំរូ',
+    'https://github.com/wed-desgin-project', 'GitHub', 'GitHub',
+    false
+  ),
+  (
+    3, 'Management Tool', 'ឧបករណ៍គ្រប់គ្រង', 'Inventory Management', 'ប្រព័ន្ធគ្រប់គ្រងស្តុក',
+    'JavaScript, Local Storage, Netlify',
+    'A stock management project with product tracking, search, filtering, and simple business workflows.',
+    'គម្រោងគ្រប់គ្រងស្តុកដែលមានការតាមដានផលិតផល ស្វែងរក ចម្រោះ និងលំហូរការងារអាជីវកម្មសាមញ្ញ។',
+    'images/inventory.png',
+    'https://inventory-projectjavascript.netlify.app/', 'Live Demo', 'មើលគំរូ',
+    'https://github.com/wed-desgin-project', 'GitHub', 'GitHub',
+    false
+  ),
+  (
+    4, 'Landing Page', 'ទំព័រផ្សព្វផ្សាយ', 'Flower Shop', 'ហាងផ្កា',
+    'HTML, CSS, Responsive Design',
+    'A floral storefront homepage with elegant branding, clear navigation, and product-focused sections.',
+    'ទំព័រដើមសម្រាប់ហាងផ្កា ដែលមានរចនាប័ទ្មស្អាត ម៉ឺនុយច្បាស់ និងផ្នែកបង្ហាញផលិតផល។',
+    'images/flower-shop-preview.svg',
+    'https://project-html-git-g9.vercel.app/', 'Live Demo', 'មើលគំរូ',
+    'https://project-html-git-g9.vercel.app/pages/productPage.html', 'Product Page', 'ទំព័រផលិតផល',
+    false
+  ),
+  (
+    5, 'Laravel and Vue.js', '', 'Alumni Media Platform', 'វេទិកាព័ត៌មានអតីតសិស្ស',
+    'Laravel, Vue.js, MySQL',
+    'A platform connecting PNC students and alumni with posts, comments, and career guidance interactions.',
+    'វេទិកាដែលភ្ជាប់សិស្ស PNC និងអតីតសិស្ស ដោយមាន post, comment និងការណែនាំអំពីអាជីព។',
+    'images/alumni.png',
+    '#contact', 'Request Demo', 'ស្នើសុំមើលគំរូ',
+    '#contact', 'Ask Details', 'សួរព័ត៌មានលម្អិត',
+    true
+  )
+) as seed
+where not exists (select 1 from public.projects);

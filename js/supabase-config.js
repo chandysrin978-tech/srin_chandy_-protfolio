@@ -15,6 +15,6 @@
  * Leave both values empty and the site simply keeps using the built-in content.
  */
 window.PORTFOLIO_CONFIG = {
-  supabaseUrl: "",
-  supabaseAnonKey: "",
+  supabaseUrl: "https://byyvrrhiefzlzxpiajjg.supabase.co",
+  supabaseAnonKey: "sb_publishable_RryZ5Aihd-mFbSV4s9g5Yg_wHoUOakG",
 };
