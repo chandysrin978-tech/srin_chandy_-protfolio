@@ -13,7 +13,7 @@
   let editingProjectId = null;
   let contentSettings = {};
   let dashboardReady = false;
-  let activePanel = "experience";
+  let activePanel = "projects";
 
   function byId(id) {
     return document.getElementById(id);
@@ -59,11 +59,38 @@
     return isNaN(date.getTime()) ? String(value) : date.toLocaleString();
   }
 
+  // Title shown in the top bar while a sidebar item is selected.
+  const PANEL_META = {
+    projects: { title: "Content Studio & Projects", icon: "fa-diagram-project" },
+    experience: { title: "Experience & Timeline", icon: "fa-clock-rotate-left" },
+    content: { title: "Site Content", icon: "fa-pen-to-square" },
+  };
+
+  // The sign-in and setup screens show a single centred card, so the sidebar is
+  // hidden by this body class (see css/admin.css).
+  function setScreen(name) {
+    document.body.classList.toggle("auth-screen", name !== "dashboard");
+  }
+
+  // Stat tiles summarise whatever is currently loaded in the panel.
+  function updateStats() {
+    const set = (node, value) => {
+      if (node) {
+        node.textContent = String(value);
+      }
+    };
+    set(el.statProjects, projectRowsById.size);
+    set(el.statExperiences, rowsById.size);
+    set(el.statSections, el.contentEditor ? el.contentEditor.querySelectorAll(".field-group").length : 0);
+    set(el.statFields, el.contentEditor ? el.contentEditor.querySelectorAll("[data-content-key]").length : 0);
+  }
+
   // -------------------------------------------------------------------
   // Screens
   // -------------------------------------------------------------------
 
   function showSetupNotice() {
+    setScreen("setup");
     el.setupNotice.hidden = false;
     el.authCard.hidden = true;
     el.dashboard.hidden = true;
@@ -76,6 +103,8 @@
     dashboardReady = false;
     rowsById.clear();
     projectRowsById.clear();
+    setScreen("login");
+    updateStats();
     resetProjectForm();
     el.setupNotice.hidden = true;
     el.dashboard.hidden = true;
@@ -85,6 +114,7 @@
   }
 
   async  function showDashboard(session) {
+    setScreen("dashboard");
     el.setupNotice.hidden = true;
     el.authCard.hidden = true;
     el.dashboard.hidden = false;
@@ -150,7 +180,9 @@
     if (!rows.length) {
       const empty = document.createElement("li");
       empty.className = "empty-state";
-      empty.textContent = "No experience entries yet. Use the form below to add your first one.";
+      empty.innerHTML =
+        '<i class="fas fa-clock-rotate-left" aria-hidden="true"></i>' +
+        "No experience entries yet. Use the form below to add your first one.";
       el.experienceList.appendChild(empty);
       return;
     }
@@ -158,9 +190,13 @@
     rows.forEach((row) => {
       rowsById.set(row.id, row);
       const meta = [row.period_en || "", row.place || ""].filter(Boolean).join(" - ");
+      const initial = (row.title_en || "?").trim().charAt(0).toUpperCase() || "?";
       const item = document.createElement("li");
       item.className = "experience-row";
       item.innerHTML =
+        '<span class="row-thumb" aria-hidden="true">' +
+        Data.escapeHtml(initial) +
+        "</span>" +
         '<div class="experience-row-main">' +
         '<span class="experience-position">#' +
         Data.escapeHtml(row.position) +
@@ -181,6 +217,38 @@
         '">Delete</button>' +
         "</div>";
       el.experienceList.appendChild(item);
+    });
+
+    renderExperienceSummary(rows);
+    updateStats();
+  }
+
+  // Right-rail list that mirrors the timeline, plus the count badge.
+  function renderExperienceSummary(rows) {
+    if (el.experienceCount) {
+      el.experienceCount.textContent = String(rows.length);
+    }
+    if (!el.experienceSummary) {
+      return;
+    }
+    el.experienceSummary.innerHTML = "";
+    if (!rows.length) {
+      const empty = document.createElement("li");
+      empty.className = "empty-state";
+      empty.innerHTML = '<i class="fas fa-inbox" aria-hidden="true"></i>No entries yet.';
+      el.experienceSummary.appendChild(empty);
+      return;
+    }
+    rows.slice(0, 4).forEach((row) => {
+      const meta = [row.period_en || "", row.place || ""].filter(Boolean).join(" - ");
+      const item = document.createElement("li");
+      item.innerHTML =
+        "<strong>" +
+        Data.escapeHtml(row.title_en || "(no English title)") +
+        "</strong><span>" +
+        Data.escapeHtml(meta || "No period set") +
+        "</span>";
+      el.experienceSummary.appendChild(item);
     });
   }
 
@@ -400,7 +468,9 @@
     if (!rows.length) {
       const empty = document.createElement("li");
       empty.className = "empty-state";
-      empty.textContent = "No projects yet. Use the form below to add your first card.";
+      empty.innerHTML =
+        '<i class="fas fa-diagram-project" aria-hidden="true"></i>' +
+        "No projects yet. Use the form below to add your first card.";
       el.projectList.appendChild(empty);
       return;
     }
@@ -408,16 +478,24 @@
     rows.forEach((row) => {
       projectRowsById.set(row.id, row);
       const meta = [row.type_en || "", row.tools || ""].filter(Boolean).join(" - ");
+      const thumb = row.image_url
+        ? '<img class="row-thumb" src="' + Data.escapeHtml(row.image_url) + '" alt="" loading="lazy">'
+        : '<span class="row-thumb" aria-hidden="true"><i class="fas fa-image"></i></span>';
+      const featured = row.featured ? '<span class="badge badge-featured">Featured</span>' : "";
       const item = document.createElement("li");
       item.className = "experience-row";
       item.innerHTML =
+        thumb +
         '<div class="experience-row-main">' +
+        '<div class="experience-row-title">' +
         '<span class="experience-position">#' +
         Data.escapeHtml(row.position) +
         "</span>" +
         "<h3>" +
         Data.escapeHtml(row.title || "(no title)") +
         "</h3>" +
+        featured +
+        "</div>" +
         "<p>" +
         Data.escapeHtml(meta) +
         "</p>" +
@@ -432,6 +510,8 @@
         "</div>";
       el.projectList.appendChild(item);
     });
+
+    updateStats();
   }
 
   async function loadProjects() {
@@ -776,6 +856,8 @@
 
       el.contentEditor.appendChild(details);
     });
+
+    updateStats();
   }
 
   async function loadContent() {
@@ -868,6 +950,10 @@
         tab.setAttribute("aria-selected", isActive ? "true" : "false");
       });
     }
+    if (el.pageTitle) {
+      const meta = PANEL_META[name] || PANEL_META.projects;
+      el.pageTitle.innerHTML = '<i class="fas ' + meta.icon + '"></i> ' + Data.escapeHtml(meta.title);
+    }
   }
 
   function handleTabClick(event) {
@@ -922,6 +1008,13 @@
       "dashboard",
       "admin-tabs",
       "admin-email",
+      "page-title",
+      "stat-projects",
+      "stat-experiences",
+      "stat-sections",
+      "stat-fields",
+      "experience-summary",
+      "experience-count",
       "cv-file",
       "cv-upload",
       "cv-status",

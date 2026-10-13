@@ -1,24 +1,54 @@
-/* Admin panel styles. Built on the variables and components from css/style.css.
-   Layout: sticky top bar -> sign-in card OR dashboard (header + tabs + one panel). */
+/* Admin panel styles, built on the tokens in css/style.css.
+   Layout: dark page frame -> rounded shell -> [sidebar | top bar + content].
+   Signed-out screens hide the sidebar and centre a single card. */
 
 :root {
-  /* More opaque than the portfolio glass so form text stays easy to read. */
-  --admin-card-bg: rgba(255, 255, 255, 0.9);
+  --admin-frame: #0d1233;
+  --admin-shell-bg: #f5f6fb;
+  --admin-surface: #ffffff;
+  --admin-row-bg: #fbfbfe;
+  --admin-line: rgba(17, 24, 39, 0.08);
+  --admin-line-strong: rgba(17, 24, 39, 0.14);
+  --admin-text: #111827;
+  --admin-muted: #6b7280;
+  /* Accent for small text and icons. --primary (#7c3aed) is too dark on the
+     dark shell, so both themes get their own readable accent. */
+  --admin-accent: #7c3aed;
+  --admin-accent-soft: rgba(124, 58, 237, 0.1);
+  /* Text inside a tinted pill: darker than --admin-accent so small bold labels
+     clear 4.5:1 against their own tint. */
+  --admin-pill-text: #6d28d9;
+  /* For pills and labels that carry white text: the brand gradient's mint and
+     blue ends are too light for small white type. */
+  --admin-pill: linear-gradient(135deg, #7c3aed, #6d28d9);
+  --admin-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px -14px rgba(16, 24, 40, 0.18);
+  --frame-pad: clamp(0rem, 1.6vw, 1.35rem);
 }
 
 body.dark-mode {
-  --admin-card-bg: rgba(15, 23, 42, 0.86);
+  --admin-frame: #05070f;
+  --admin-shell-bg: #0d1626;
+  --admin-surface: #121d31;
+  --admin-row-bg: #16223a;
+  --admin-line: rgba(255, 255, 255, 0.09);
+  --admin-line-strong: rgba(255, 255, 255, 0.16);
+  --admin-text: #e9eef8;
+  --admin-muted: #94a3b8;
+  --admin-accent: #b9a5fd;
+  --admin-accent-soft: rgba(148, 118, 246, 0.24);
+  --admin-pill-text: #c4b5fd;
+  --admin-pill: linear-gradient(135deg, #7c3aed, #6d28d9);
+  --admin-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 14px 34px -18px rgba(0, 0, 0, 0.6);
 }
 
 [hidden] {
   display: none !important;
 }
 
-/* style.css styles bare elements for the portfolio and several of them fight
-   this dashboard, so neutralise them here (admin.css loads after style.css):
-   - <section> fades in via .in-view (there is no scroll observer here) and
-     carries the portfolio's huge section padding, which squeezed every card
-     into a narrow column with large empty gaps;
+/* style.css styles bare elements for the portfolio and several fight this
+   dashboard, so neutralise them here (admin.css loads after style.css):
+   - <section> fades in via .in-view (no scroll observer here) and carries the
+     portfolio's huge section padding, which would crush the cards;
    - headings inherit the portfolio's clamp() sizes and max-widths. */
 .admin-wrap section {
   padding: 0;
@@ -32,79 +62,205 @@ body.dark-mode {
 }
 
 body {
-  padding-bottom: 4rem;
-  /* Calmer background than the portfolio: less glare behind form text. */
-  background:
-    radial-gradient(circle at 15% 0%, rgba(139, 92, 246, 0.1), transparent 24rem),
-    linear-gradient(160deg, var(--bg-primary), var(--bg-secondary));
-}
-
-code {
-  padding: 0.15rem 0.4rem;
-  font-size: 0.88em;
-  background: rgba(124, 58, 237, 0.12);
-  border-radius: 0.4rem;
+  padding: 0;
+  color: var(--admin-text);
+  background: var(--admin-frame);
+  /* style.css sets overflow-x: hidden, which turns <body> into a scroll
+     container and stops position: sticky working against the viewport.
+     clip scrolls nothing, so the sidebar and top bar stay pinned. */
+  overflow-x: clip;
 }
 
 /* --------------------------------------------------------------------------
-   Layout
+   Frame + shell
    -------------------------------------------------------------------------- */
 
-.admin-wrap {
-  width: min(64rem, 100%);
-  margin-inline: auto;
-  padding: clamp(1.25rem, 4vw, 2.25rem) clamp(1rem, 4vw, 2rem) 0;
+.admin-frame {
+  min-height: 100vh;
+  padding: var(--frame-pad);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(124, 58, 237, 0.38), transparent 30rem),
+    radial-gradient(circle at 88% 4%, rgba(16, 185, 129, 0.22), transparent 28rem),
+    var(--admin-frame);
 }
 
-.admin-card {
-  padding: clamp(1.15rem, 2.5vw, 1.6rem);
-  background: var(--admin-card-bg);
-  border: 1px solid var(--border-color);
+.admin-shell {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  min-height: calc(100vh - (2 * var(--frame-pad)));
+  background: var(--admin-shell-bg);
+  border: 1px solid var(--admin-line);
   border-radius: 1.25rem;
-  box-shadow: var(--shadow);
+  box-shadow: 0 30px 70px -30px rgba(6, 10, 30, 0.55);
 }
 
-.dashboard-head {
-  margin-bottom: 1.25rem;
+/* --------------------------------------------------------------------------
+   Sidebar
+   -------------------------------------------------------------------------- */
+
+.admin-sidebar {
+  position: sticky;
+  top: var(--frame-pad);
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: calc(100vh - (2 * var(--frame-pad)));
+  padding: 1.15rem 1rem;
+  background: var(--admin-surface);
+  border-right: 1px solid var(--admin-line);
+  border-radius: 1.25rem 0 0 1.25rem;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0 0.25rem 1rem;
+  border-bottom: 1px solid var(--admin-line);
+}
+
+.brand-mark {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.4rem;
+  height: 2.4rem;
+  place-items: center;
+  color: white;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 800;
+  background: var(--gradient);
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 22px rgba(124, 58, 237, 0.3);
+}
+
+.brand-text {
+  display: grid;
+  line-height: 1.2;
+}
+
+.brand-text strong {
+  font-size: 0.95rem;
+}
+
+.brand-text small {
+  color: var(--admin-muted);
+  font-size: 0.74rem;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.8rem;
+  color: var(--admin-muted);
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 0.8rem;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-item i {
+  width: 1.1rem;
+  text-align: center;
+}
+
+.nav-item:hover {
+  color: var(--admin-text);
+  background: rgba(124, 58, 237, 0.09);
+}
+
+.nav-item.active,
+.nav-item.active:hover {
+  color: white;
+  background: var(--admin-pill);
+  box-shadow: 0 10px 22px rgba(124, 58, 237, 0.28);
+}
+
+.nav-item:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.sidebar-foot {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: auto;
+  padding: 0.9rem 0.25rem 0;
+  color: var(--admin-muted);
+  font-size: 0.78rem;
+  border-top: 1px solid var(--admin-line);
+}
+
+.sidebar-foot span,
+.brand-text strong,
+.brand-text small,
+.nav-item span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar-foot i {
+  flex: 0 0 auto;
+}
+
+.sidebar-foot i {
+  color: var(--mint);
 }
 
 /* --------------------------------------------------------------------------
    Top bar
    -------------------------------------------------------------------------- */
 
+.admin-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* Pinned like the sidebar: opaque so content passes underneath it. */
 .admin-topbar {
   position: sticky;
-  top: 0;
-  z-index: 50;
+  top: var(--frame-pad);
+  z-index: 20;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem 1rem;
+  gap: 0.85rem 1rem;
   align-items: center;
-  padding: 0.8rem clamp(1rem, 4vw, 2.5rem);
-  background: var(--glass-bg);
-  border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.08);
-  backdrop-filter: blur(18px);
+  justify-content: space-between;
+  padding: 1rem clamp(1rem, 3vw, 1.6rem);
+  background: var(--admin-shell-bg);
+  border-bottom: 1px solid var(--admin-line);
+  border-top-right-radius: 1.25rem;
 }
 
-.admin-topbar .brand {
-  display: grid;
-  width: 2.6rem;
-  height: 2.6rem;
-  place-items: center;
-  color: white;
-  font-family: "Poppins", system-ui, sans-serif;
-  font-weight: 800;
-  background: var(--gradient);
-  border-radius: 0.9rem;
-  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.26);
-}
-
-.admin-topbar-title {
-  flex: 1 1 auto;
-  letter-spacing: 0.01em;
-  font-family: "Poppins", system-ui, sans-serif;
+.topbar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  max-width: none;
+  color: var(--admin-text);
+  font-size: 1.05rem;
   font-weight: 700;
+}
+
+.topbar-title i {
+  color: var(--admin-accent);
 }
 
 .admin-topbar-actions {
@@ -114,182 +270,242 @@ code {
   align-items: center;
 }
 
-.admin-topbar-actions .btn-outline,
-.admin-topbar-actions .btn {
-  min-height: 2.5rem;
-}
-
 .admin-topbar .theme-toggle {
   flex: 0 0 auto;
+  background: var(--admin-surface);
+  border-color: var(--admin-line-strong);
   transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
 .admin-topbar .theme-toggle:hover {
-  color: var(--primary);
+  color: var(--admin-accent);
   border-color: var(--primary);
   transform: translateY(-1px);
 }
 
-/* --------------------------------------------------------------------------
-   Sign in
-   -------------------------------------------------------------------------- */
-
-.auth-card {
-  position: relative;
-  width: min(27rem, 100%);
-  margin-inline: auto;
-  padding: 2rem;
-  overflow: hidden;
-}
-
-.auth-card::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
-  background: var(--gradient);
-}
-
-.auth-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-  margin-bottom: 1.4rem;
-}
-
-.auth-badge {
-  display: grid;
-  flex: 0 0 auto;
-  width: 3rem;
-  height: 3rem;
-  place-items: center;
-  color: white;
-  font-family: "Poppins", system-ui, sans-serif;
-  font-size: 1.05rem;
-  font-weight: 800;
-  background: var(--gradient);
-  border-radius: 1rem;
-  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.3);
-}
-
-.auth-brand-text h1 {
-  margin-bottom: 0.1rem;
-}
-
-.auth-brand-text .admin-lead {
-  margin-bottom: 0;
-}
-
-.auth-submit {
-  display: inline-flex;
-  width: 100%;
-  justify-content: center;
-}
-
-.auth-foot {
-  display: flex;
-  align-items: center;
-  gap: 0.55rem;
-  margin-top: 1.4rem;
-  padding-top: 1.15rem;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  border-top: 1px solid var(--border-color);
-}
-
-.auth-foot i {
-  color: var(--primary);
-}
-
-/* --------------------------------------------------------------------------
-   Tabs: one section visible at a time
-   -------------------------------------------------------------------------- */
-
-.admin-tabs {
-  /* Never inherit the portfolio's fixed <nav> positioning. */
-  position: static;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  padding: 0.4rem;
-  margin-bottom: 1.5rem;
-  background: var(--glass-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 999px;
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
-}
-
-.admin-tab {
-  flex: 1 1 auto;
+.account-chip {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  padding: 0.7rem 1rem;
-  color: var(--text-secondary);
-  font: inherit;
+  padding: 0.5rem 0.85rem;
+  color: var(--admin-text);
+  font-size: 0.85rem;
   font-weight: 600;
-  background: transparent;
-  border: 0;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
   border-radius: 999px;
+}
+
+.account-chip i {
+  color: var(--admin-accent);
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: 0.75rem;
   cursor: pointer;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition: transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.admin-tab:hover {
-  color: var(--text-primary);
-  background: rgba(124, 58, 237, 0.08);
+.icon-btn:hover {
+  transform: translateY(-1px);
 }
 
-.admin-tab.active,
-.admin-tab.active:hover {
-  color: white;
-  background: var(--gradient);
-  box-shadow: 0 10px 24px rgba(124, 58, 237, 0.28);
-}
-
-.admin-tab:focus-visible {
+.icon-btn:focus-visible,
+.account-chip:focus-visible,
+.admin-topbar .theme-toggle:focus-visible,
+.field-group > summary:focus-visible {
   outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
-.admin-panel {
-  display: grid;
-  gap: 1.5rem;
+.icon-btn-danger {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.icon-btn-danger:hover {
+  color: white;
+  background: #dc2626;
+  border-color: #dc2626;
 }
 
 /* --------------------------------------------------------------------------
-   Card headings and text
+   Content area
    -------------------------------------------------------------------------- */
+
+.admin-wrap {
+  flex: 1 1 auto;
+  width: 100%;
+  padding: clamp(1rem, 3vw, 1.6rem);
+}
+
+.admin-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  gap: 1.15rem;
+  align-items: start;
+}
+
+.admin-col-main,
+.admin-col-side {
+  display: grid;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Stat tiles
+   -------------------------------------------------------------------------- */
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.15rem;
+}
+
+.stat-tile {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: 1rem;
+  box-shadow: var(--admin-shadow);
+}
+
+.stat-icon {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  color: var(--admin-accent);
+  background: rgba(124, 58, 237, 0.12);
+  border-radius: 0.8rem;
+}
+
+.stat-icon-mint {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.stat-icon-blue {
+  color: #2563eb;
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.stat-icon-pink {
+  color: #db2777;
+  background: rgba(236, 72, 153, 0.14);
+}
+
+/* Icons need 3:1 to stay legible; the light-theme shades fall below that. */
+body.dark-mode .stat-icon {
+  color: #b9a5fd;
+}
+
+body.dark-mode .stat-icon-mint {
+  color: #34d399;
+}
+
+body.dark-mode .stat-icon-blue {
+  color: #60a5fa;
+}
+
+body.dark-mode .stat-icon-pink {
+  color: #f472b6;
+}
+
+.stat-body {
+  display: grid;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.stat-body strong {
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.stat-body > span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stat-body small {
+  color: var(--admin-muted);
+  font-size: 0.74rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stat-tile {
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.stat-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--admin-line-strong);
+  box-shadow: 0 14px 30px -16px rgba(16, 24, 40, 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+
+.admin-card {
+  padding: clamp(1rem, 2.2vw, 1.35rem);
+  color: var(--admin-text);
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line);
+  border-radius: 1.1rem;
+  box-shadow: var(--admin-shadow);
+  backdrop-filter: none;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.admin-card:hover {
+  border-color: var(--admin-line-strong);
+}
 
 .admin-card h1,
 .admin-card h2 {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 0.65rem;
-  font-size: 1.1rem;
+  gap: 0.55rem;
+  margin-bottom: 0.6rem;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .admin-card h1 {
-  font-size: 1.5rem;
+  font-size: 1.35rem;
 }
 
-.admin-card h2 i,
-.dashboard-head h1 i {
-  color: var(--primary);
+.admin-card h2 i {
+  color: var(--admin-accent);
 }
 
 .admin-lead {
-  margin-bottom: 1.1rem;
-  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  color: var(--admin-muted);
+  font-size: 0.87rem;
 }
 
 .card-head {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.6rem;
   align-items: center;
   justify-content: space-between;
 }
@@ -298,22 +514,68 @@ code {
   margin-bottom: 0;
 }
 
-.card-status {
+/* Two classes so this beats the plain .status colour below, which would
+   otherwise paint the pill's text grey on its purple tint. */
+.status.card-status {
   flex: 0 0 auto;
+  min-height: 0;
   margin: 0;
-  font-size: 0.85rem;
+  padding: 0.2rem 0.6rem;
+  color: var(--admin-pill-text);
+  font-size: 0.74rem;
+  font-weight: 700;
+  background: var(--admin-accent-soft);
+  border-radius: 999px;
 }
 
 .admin-steps {
   display: grid;
   gap: 0.5rem;
   margin: 0 0 1.25rem 1.15rem;
-  color: var(--text-secondary);
+  color: var(--admin-muted);
 }
 
 .admin-steps a {
-  color: var(--primary);
+  color: var(--admin-accent);
   font-weight: 700;
+}
+
+code {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.88em;
+  background: rgba(124, 58, 237, 0.12);
+  border-radius: 0.4rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.18rem 0.6rem;
+  color: var(--admin-pill-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: var(--admin-accent-soft);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badge-mint {
+  color: #065f46;
+  background: rgba(16, 185, 129, 0.16);
+}
+
+body.dark-mode .badge-mint {
+  color: #6ee7b7;
+}
+
+.badge-featured {
+  color: #92400e;
+  background: rgba(245, 158, 11, 0.18);
+}
+
+body.dark-mode .badge-featured {
+  color: #fcd34d;
 }
 
 /* --------------------------------------------------------------------------
@@ -327,27 +589,29 @@ code {
 
 .field {
   display: grid;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .field label {
+  color: var(--admin-text);
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
 .field-hint {
-  color: var(--text-muted);
-  font-size: 0.82rem;
+  color: var(--admin-muted);
+  font-size: 0.76rem;
 }
 
 .field label i {
   width: 1rem;
   margin-right: 0.1rem;
-  color: var(--primary);
+  color: var(--admin-accent);
 }
 
 .form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   gap: 0.9rem;
 }
 
@@ -357,14 +621,14 @@ code {
 
 /* Groups a long form into readable blocks (Basics / Image / Links). */
 .form-section {
-  margin: 0.35rem 0 0;
+  margin: 0.4rem 0 0;
   padding-top: 0.9rem;
-  color: var(--text-muted);
-  font-size: 0.78rem;
+  color: var(--admin-muted);
+  font-size: 0.72rem;
   font-weight: 800;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  border-top: 1px solid var(--border-color);
+  border-top: 1px solid var(--admin-line);
 }
 
 .form-section:first-child {
@@ -372,94 +636,109 @@ code {
   border-top: 0;
 }
 
-/* Text inputs and textareas only - checkboxes must keep their natural size. */
-.admin-form input:not([type="checkbox"]):not([type="radio"]),
+/* Text inputs and textareas only - checkboxes and file pickers are excluded so
+   the rules below can style them properly. */
+.admin-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
 .admin-form textarea {
   width: 100%;
-  padding: 0.8rem 0.95rem;
-  color: var(--text-primary);
+  padding: 0.7rem 0.85rem;
+  color: var(--admin-text);
   font: inherit;
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-}
-
-body.dark-mode .admin-form input:not([type="checkbox"]):not([type="radio"]),
-body.dark-mode .admin-form textarea {
-  background: rgba(15, 23, 42, 0.55);
+  background: var(--admin-row-bg);
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 0.7rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-form textarea {
   resize: vertical;
 }
 
-.admin-form input[type="file"] {
-  padding: 0.45rem 0.5rem;
-  background: transparent;
-  border-style: dashed;
+/* Scoped to the whole page, not .admin-form: the CV card's file picker lives in
+   the right rail, outside any form, and was still the raw browser widget. */
+.admin-wrap input[type="file"] {
+  width: 100%;
+  padding: 0.45rem 0.6rem;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 0.88rem;
+  background: var(--admin-row-bg);
+  border: 1px dashed var(--admin-line-strong);
+  border-radius: 0.7rem;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-wrap input[type="file"]:hover {
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+.admin-wrap input[type="file"]:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
 /* Replaces the browser's default "Choose File" control with a themed button. */
-.admin-form input[type="file"]::file-selector-button,
-.admin-form input[type="file"]::-webkit-file-upload-button {
-  margin-right: 0.65rem;
-  padding: 0.55rem 0.95rem;
-  color: var(--primary);
+.admin-wrap input[type="file"]::file-selector-button,
+.admin-wrap input[type="file"]::-webkit-file-upload-button {
+  margin-right: 0.6rem;
+  padding: 0.5rem 0.9rem;
+  color: var(--admin-accent);
   font: inherit;
   font-weight: 700;
   background: rgba(124, 58, 237, 0.1);
-  border: 1px solid var(--border-color);
-  border-radius: 0.6rem;
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 0.55rem;
   cursor: pointer;
   transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
 }
 
-.admin-form input[type="file"]::file-selector-button:hover,
-.admin-form input[type="file"]::-webkit-file-upload-button:hover {
+.admin-wrap input[type="file"]::file-selector-button:hover,
+.admin-wrap input[type="file"]::-webkit-file-upload-button:hover {
   color: white;
   background: var(--primary);
   border-color: var(--primary);
 }
 
+body.dark-mode .admin-wrap input[type="file"]::file-selector-button,
+body.dark-mode .admin-wrap input[type="file"]::-webkit-file-upload-button {
+  color: #d9ceff;
+  background: rgba(148, 118, 246, 0.22);
+  border-color: rgba(185, 165, 253, 0.4);
+}
+
 .admin-form input::placeholder,
 .admin-form textarea::placeholder {
-  color: var(--text-muted);
+  color: var(--admin-muted);
   opacity: 0.75;
 }
 
 .admin-form input:not([type="checkbox"]):hover:not(:focus),
 .admin-form textarea:hover:not(:focus) {
-  border-color: rgba(124, 58, 237, 0.34);
+  border-color: rgba(124, 58, 237, 0.4);
 }
 
 .admin-form input:focus-visible,
 .admin-form textarea:focus-visible {
-  border-color: transparent;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.24);
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
-/* Checkbox row */
 .checkline {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.55rem;
   font-weight: 600;
   cursor: pointer;
 }
 
 .admin-form .checkline input[type="checkbox"] {
   flex: 0 0 auto;
-  width: 1.15rem;
-  height: 1.15rem;
+  width: 1.1rem;
+  height: 1.1rem;
   accent-color: var(--primary);
-}
-
-/* English and Khmer side by side instead of stacked, roughly halving the scroll. */
-.lang-pair {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.9rem;
 }
 
 /* A file input and its upload button share one row. */
@@ -471,7 +750,7 @@ body.dark-mode .admin-form textarea {
 }
 
 .file-row input[type="file"] {
-  flex: 1 1 16rem;
+  flex: 1 1 14rem;
   min-width: 0;
 }
 
@@ -479,11 +758,18 @@ body.dark-mode .admin-form textarea {
   flex: 0 0 auto;
 }
 
+/* English and Khmer side by side instead of stacked. */
+.lang-pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
 .form-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.7rem;
+  gap: 0.6rem;
   align-items: center;
+  justify-content: flex-end;
 }
 
 .admin-form .btn,
@@ -491,38 +777,58 @@ body.dark-mode .admin-form textarea {
   justify-self: start;
 }
 
-/* Docks the Save/Reload toolbar to the bottom while scrolling the long form. */
-.form-actions-sticky {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
-  margin-top: 0.75rem;
-  padding: 0.85rem 0.95rem;
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-bottom: 0;
-  border-radius: 1rem 1rem 0 0;
-  box-shadow: 0 -10px 30px rgba(79, 70, 229, 0.12);
+.form-actions .btn,
+.form-actions .btn-outline {
+  justify-self: auto;
+}
+
+/* Used in the narrow rail, where a full-width action button looks better. */
+.form-actions-block {
+  justify-content: stretch;
+}
+
+.form-actions-block .btn {
+  flex: 1 1 auto;
+  justify-content: center;
 }
 
 #content-editor {
   padding-bottom: 0.5rem;
 }
 
+/* Docks the Save/Reload toolbar while scrolling the long content form. */
+.form-actions-sticky {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--admin-surface);
+  border: 1px solid var(--admin-line-strong);
+  border-radius: 0.9rem;
+  box-shadow: 0 -8px 24px -12px rgba(16, 24, 40, 0.28);
+}
+
 .form-actions-sticky .status {
-  margin-left: auto;
-  text-align: right;
+  margin-right: auto;
+  margin-left: 0;
+  text-align: left;
 }
 
 .status {
-  min-height: 1.3rem;
-  color: var(--text-muted);
+  min-height: 1.25rem;
+  color: var(--admin-muted);
+  font-size: 0.82rem;
   font-weight: 600;
   overflow-wrap: anywhere;
 }
 
 .status.success {
-  color: var(--mint);
+  color: #047857;
+}
+
+body.dark-mode .status.success {
+  color: #6ee7b7;
 }
 
 .status.error {
@@ -534,31 +840,24 @@ body.dark-mode .admin-form textarea {
    -------------------------------------------------------------------------- */
 
 .field-group {
-  margin-bottom: 0.75rem;
-  background: rgba(124, 58, 237, 0.04);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
+  margin-bottom: 0.7rem;
+  background: var(--admin-row-bg);
+  border: 1px solid var(--admin-line);
+  border-radius: 0.9rem;
   overflow: hidden;
 }
 
 .field-group[open] {
-  background: rgba(124, 58, 237, 0.07);
-}
-
-body.dark-mode .field-group {
-  background: rgba(124, 58, 237, 0.12);
-}
-
-body.dark-mode .field-group[open] {
-  background: rgba(124, 58, 237, 0.18);
+  border-color: var(--admin-line-strong);
 }
 
 .field-group > summary {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.9rem 1.05rem;
+  padding: 0.85rem 1rem;
   font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
   list-style: none;
@@ -591,124 +890,377 @@ body.dark-mode .field-group[open] {
 }
 
 .field-group .form-grid {
-  padding: 0.15rem 1.05rem 1.1rem;
+  padding: 0.15rem 1rem 1.1rem;
 }
 
 /* --------------------------------------------------------------------------
-   CV
+   CV + right rail
    -------------------------------------------------------------------------- */
 
 .cv-meta {
-  margin-bottom: 0.75rem;
-  color: var(--text-secondary);
+  margin-bottom: 0.7rem;
+  color: var(--admin-muted);
+  font-size: 0.85rem;
   overflow-wrap: anywhere;
 }
 
 .cv-meta a {
-  color: var(--primary);
+  color: var(--admin-accent);
   font-weight: 700;
 }
 
+.summary-list {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.summary-list li {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.7rem 0.8rem;
+  background: var(--admin-row-bg);
+  border: 1px solid var(--admin-line);
+  border-radius: 0.75rem;
+}
+
+.summary-list strong {
+  font-size: 0.87rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.summary-list span {
+  color: var(--admin-muted);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+.tips {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tips li {
+  display: flex;
+  gap: 0.55rem;
+  color: var(--admin-muted);
+  font-size: 0.83rem;
+}
+
+.tips i {
+  margin-top: 0.35rem;
+  color: var(--admin-accent);
+  font-size: 0.4rem;
+}
+
 /* --------------------------------------------------------------------------
-   Experience / project lists
+   Rows (experience + project lists)
    -------------------------------------------------------------------------- */
 
 .experience-list {
   display: grid;
-  gap: 0.85rem;
+  gap: 0.7rem;
   margin: 0;
+  padding: 0;
   list-style: none;
 }
 
 .experience-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.85rem;
+  gap: 0.8rem;
   align-items: center;
-  justify-content: space-between;
-  padding: 1rem 1.1rem;
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid var(--border-color);
-  border-radius: 1rem;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-body.dark-mode .experience-row {
-  background: rgba(15, 23, 42, 0.5);
+  padding: 0.8rem 0.9rem;
+  background: var(--admin-row-bg);
+  border: 1px solid var(--admin-line);
+  border-radius: 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .experience-row:hover {
   transform: translateY(-1px);
-  border-color: rgba(124, 58, 237, 0.3);
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.12);
+  border-color: var(--admin-line-strong);
+  box-shadow: 0 10px 24px -14px rgba(16, 24, 40, 0.3);
+}
+
+/* Doubles as an image container and as a letter/icon avatar. */
+.row-thumb {
+  display: grid;
+  flex: 0 0 auto;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  color: var(--admin-accent);
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  object-fit: cover;
+  background: rgba(124, 58, 237, 0.1);
+  border: 1px solid var(--admin-line);
+  border-radius: 0.7rem;
 }
 
 .experience-row-main {
   min-width: 0;
-  flex: 1 1 16rem;
+  flex: 1 1 12rem;
 }
 
-.experience-position {
-  display: inline-flex;
-  padding: 0.15rem 0.55rem;
-  margin-bottom: 0.35rem;
-  color: white;
-  font-size: 0.78rem;
-  font-weight: 800;
-  background: var(--gradient);
-  border-radius: 999px;
+.experience-row-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
 }
 
 .experience-row h3 {
-  margin-bottom: 0.15rem;
-  font-size: 1.05rem;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .experience-row p {
-  color: var(--text-muted);
-  font-size: 0.9rem;
+  margin: 0.15rem 0 0;
+  color: var(--admin-muted);
+  font-size: 0.8rem;
   overflow-wrap: anywhere;
+}
+
+.experience-position {
+  display: inline-flex;
+  padding: 0.12rem 0.5rem;
+  margin-bottom: 0.3rem;
+  color: white;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--admin-pill);
+  border-radius: 999px;
 }
 
 .experience-row-actions {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+}
+
+.btn-tiny {
+  min-height: 2rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
 }
 
 .btn-outline.danger {
   color: #dc2626;
-  border-color: rgba(220, 38, 38, 0.36);
+  border-color: rgba(220, 38, 38, 0.34);
 }
 
 .empty-state {
-  padding: 1.25rem 0;
-  color: var(--text-muted);
+  padding: 1.3rem 0;
+  color: var(--admin-muted);
   text-align: center;
 }
 
+.empty-state i {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--admin-accent);
+  font-size: 1.3rem;
+  opacity: 0.5;
+}
+
 /* --------------------------------------------------------------------------
-   Small screens
+   Scrollbars
    -------------------------------------------------------------------------- */
 
-@media (max-width: 640px) {
+html {
+  scrollbar-color: rgba(124, 58, 237, 0.5) transparent;
+}
+
+html::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.45);
+  background-clip: content-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(124, 58, 237, 0.75);
+  background-clip: content-box;
+}
+
+/* --------------------------------------------------------------------------
+   Sign in / setup
+   -------------------------------------------------------------------------- */
+
+body.auth-screen .admin-sidebar {
+  display: none;
+}
+
+body.auth-screen .admin-shell {
+  grid-template-columns: minmax(0, 1fr);
+  min-height: auto;
+}
+
+body.auth-screen .account-chip {
+  display: none;
+}
+
+body.auth-screen .admin-wrap {
+  display: grid;
+  justify-items: center;
+  padding-block: clamp(1.5rem, 7vh, 4rem);
+}
+
+body.auth-screen .reveal-card {
+  width: min(30rem, 100%);
+}
+
+.auth-card {
+  position: relative;
+  overflow: hidden;
+  padding: 2rem;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  background: var(--gradient);
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.auth-badge {
+  display: grid;
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  place-items: center;
+  color: white;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  background: var(--gradient);
+  border-radius: 1rem;
+  box-shadow: 0 12px 28px rgba(124, 58, 237, 0.3);
+}
+
+.auth-brand-text h1 {
+  margin-bottom: 0.1rem;
+}
+
+.auth-brand-text .admin-lead {
+  margin-bottom: 0;
+}
+
+.auth-submit {
+  display: inline-flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.auth-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-top: 1.4rem;
+  padding-top: 1.15rem;
+  color: var(--admin-muted);
+  font-size: 0.83rem;
+  border-top: 1px solid var(--admin-line);
+}
+
+.auth-foot i {
+  color: var(--admin-accent);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1100px) {
+  .admin-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stat-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-sidebar {
+    position: static;
+    min-height: 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--admin-line);
+    border-radius: 1.25rem 1.25rem 0 0;
+  }
+
+  /* The sidebar row now owns the shell's rounded top-right corner. */
+  .admin-topbar {
+    border-top-right-radius: 0;
+  }
+
+  .admin-nav {
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+  }
+
+  .nav-item {
+    justify-content: center;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .sidebar-foot {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .stat-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-topbar {
+    justify-content: flex-start;
+  }
+
+  .account-chip {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
   .admin-topbar-actions {
     width: 100%;
-  }
-
-  .admin-topbar-actions .btn-outline,
-  .admin-topbar-actions .btn {
-    flex: 1 1 auto;
-  }
-
-  .auth-card {
-    padding: 1.5rem;
-  }
-
-  .admin-tab {
-    flex: 1 1 45%;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.9rem;
   }
 
   .lang-pair {
@@ -719,8 +1271,14 @@ body.dark-mode .experience-row {
     flex: 1 1 auto;
   }
 
+  .form-actions,
   .form-actions-sticky .status {
-    margin-left: 0;
-    text-align: left;
+    justify-content: stretch;
+  }
+
+  .form-actions .btn,
+  .form-actions .btn-outline {
+    flex: 1 1 auto;
+    justify-content: center;
   }
 }
