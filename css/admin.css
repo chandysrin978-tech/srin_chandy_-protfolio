@@ -1,0 +1,313 @@
+/* Admin panel layout. Built on the variables and components from css/style.css. */
+
+[hidden] {
+  display: none !important;
+}
+
+/* style.css fades <section> in with .in-view from script.js. The admin page has
+   no scroll observer, so keep its sections visible. */
+.admin-wrap section {
+  opacity: 1;
+  transform: none;
+}
+
+body {
+  padding-bottom: 4rem;
+}
+
+code {
+  padding: 0.15rem 0.4rem;
+  font-size: 0.88em;
+  background: rgba(124, 58, 237, 0.12);
+  border-radius: 0.4rem;
+}
+
+.admin-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  padding: 0.85rem clamp(1rem, 4vw, 2.5rem);
+  background: var(--glass-bg);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(18px);
+}
+
+.admin-topbar .brand {
+  display: grid;
+  width: 2.6rem;
+  height: 2.6rem;
+  place-items: center;
+  color: white;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 800;
+  background: var(--gradient);
+  border-radius: 0.9rem;
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.26);
+}
+
+.admin-topbar-title {
+  flex: 1 1 auto;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 700;
+}
+
+.admin-topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.admin-wrap {
+  width: min(68rem, 100%);
+  margin-inline: auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 0;
+}
+
+.admin-card {
+  padding: 1.5rem;
+}
+
+.admin-card + .admin-card,
+.admin-grid + .admin-card,
+.dashboard-head + .admin-grid {
+  margin-top: 1.5rem;
+}
+
+.admin-card h1,
+.admin-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.65rem;
+  font-size: 1.15rem;
+}
+
+.admin-card h1 {
+  font-size: 1.5rem;
+}
+
+.admin-lead {
+  margin-bottom: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.admin-steps {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 1.25rem 1.15rem;
+  color: var(--text-secondary);
+}
+
+.admin-steps a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.dashboard-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.auth-card {
+  width: min(30rem, 100%);
+  margin-inline: auto;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.admin-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.field label {
+  font-weight: 700;
+}
+
+.field-hint {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+}
+
+.admin-form input,
+.admin-form textarea {
+  width: 100%;
+  padding: 0.8rem 0.95rem;
+  color: var(--text-primary);
+  font: inherit;
+  background: rgba(255, 255, 255, 0.56);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+}
+
+.admin-form input[type="file"] {
+  padding: 0.6rem 0.75rem;
+  background: transparent;
+  border-style: dashed;
+}
+
+body.dark-mode .admin-form input,
+body.dark-mode .admin-form textarea {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.admin-form textarea {
+  resize: vertical;
+}
+
+.admin-form input:focus-visible,
+.admin-form textarea:focus-visible {
+  outline: 2px solid rgba(124, 58, 237, 0.45);
+  outline-offset: 1px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 0.9rem;
+}
+
+.form-grid .field-wide {
+  grid-column: 1 / -1;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.admin-form .btn,
+.cv-meta + .field + .btn {
+  justify-self: start;
+}
+
+.status {
+  min-height: 1.3rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.status.success {
+  color: var(--mint);
+}
+
+.status.error {
+  color: #dc2626;
+}
+
+.cv-meta {
+  margin-bottom: 0.75rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.cv-meta a {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.experience-list {
+  display: grid;
+  gap: 0.85rem;
+  margin: 0 0 0.85rem;
+  list-style: none;
+}
+
+.experience-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.1rem;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+}
+
+body.dark-mode .experience-row {
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.experience-row-main {
+  min-width: 0;
+  flex: 1 1 16rem;
+}
+
+.experience-position {
+  display: inline-flex;
+  padding: 0.15rem 0.55rem;
+  margin-bottom: 0.35rem;
+  color: white;
+  font-size: 0.78rem;
+  font-weight: 800;
+  background: var(--gradient);
+  border-radius: 999px;
+}
+
+.experience-row h3 {
+  margin-bottom: 0.15rem;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.experience-row p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.experience-row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-outline.danger {
+  color: #dc2626;
+  border-color: rgba(220, 38, 38, 0.36);
+}
+
+.empty-state {
+  padding: 1rem 0;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .admin-topbar-actions {
+    width: 100%;
+  }
+
+  .admin-topbar-actions .btn-outline,
+  .admin-topbar-actions .btn {
+    flex: 1 1 auto;
+  }
+}

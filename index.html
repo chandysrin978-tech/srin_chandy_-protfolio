@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Srin Chandy portfolio - web development internship candidate focused on responsive, user-friendly web applications.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Khmer:wght@400;500;600;700;800&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <title>Srin Chandy - Portfolio</title>
+
+</head>
+
+<body class="light-mode loading">
+  <div class="loader" aria-label="Loading portfolio">
+    <div class="loader-content">
+      <div class="loader-logo">SC</div>
+      <div class="loader-bar"><span></span></div>
+      <p data-en="Loading amazing experiences..." data-km="កំពុងផ្ទុកបទពិសោធន៍ល្អៗ...">Loading amazing experiences...</p>
+    </div>
+  </div>
+  <div class="scroll-progress" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-outline" aria-hidden="true"></div>
+
+  <nav>
+    <a href="#home" class="brand" aria-label="Srin Chandy home">SC</a>
+    <div class="nav-container">
+      <ul>
+        <li><a href="#home" data-en="Home" data-km="ទំព័រដើម">Home</a></li>
+        <li><a href="#about" data-en="About" data-km="អំពីខ្ញុំ">About</a></li>
+        <li><a href="#skills" data-en="Skills" data-km="ជំនាញ">Skills</a></li>
+        <li><a href="#projects" data-en="Projects" data-km="គម្រោង">Projects</a></li>
+        <li><a href="#resume" data-en="Resume" data-km="បទពិសោធន៍">Resume</a></li>
+        <li><a href="#contact" data-en="Contact" data-km="ទំនាក់ទំនង">Contact</a></li>
+        <li>
+          <button class="language-toggle" onclick="toggleLanguage()" type="button" aria-label="Switch language">
+            ភាសាខ្មែរ
+          </button>
+        </li>
+        <li>
+          <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">
+            <i class="fas fa-moon"></i>
+          </button>
+        </li>
+      </ul>
+      <button class="hamburger" onclick="toggleMenu()" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="hero-content">
+        <div class="hero-copy">
+          <span class="eyebrow" data-en="Portfolio 2026" data-km="ផតហ្វូលីយ៉ូ ២០២៦">Portfolio 2026</span>
+          <h1><span data-en="Hi, I'm" data-km="សួស្តី ខ្ញុំឈ្មោះ">Hi, I'm</span> <span class="gradient-text">Srin Chandy</span></h1>
+          <p data-en="A motivated junior web developer seeking a web development internship, with hands-on practice building responsive and user-friendly web applications." data-km="ខ្ញុំជាអ្នកអភិវឌ្ឍន៍គេហទំព័រជំនាន់ថ្មី ដែលកំពុងស្វែងរកឱកាសហាត់ការផ្នែក Web Development និងមានបទពិសោធន៍អនុវត្តក្នុងការបង្កើតគេហទំព័រដែលឆ្លើយតបល្អ និងងាយស្រួលប្រើ។">
+            A motivated junior web developer seeking a web development internship, with hands-on practice building responsive and user-friendly web applications.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="scrollToSection('projects')">
+              <span data-en="Explore Projects" data-km="មើលគម្រោង">Explore Projects</span> <i class="fas fa-arrow-right"></i>
+            </button>
+            <a class="btn btn-ghost" id="cv-download" data-cv-link href="assets/SrinChandy_CV.pdf" download>
+              <span data-en="Download CV" data-km="ទាញយក CV">Download CV</span> <i class="fas fa-download"></i>
+            </a>
+          </div>
+
+          <div class="social-icons" aria-label="Social links">
+            <a href="https://github.com/" target="_blank" rel="noopener" class="social-link" title="GitHub">
+              <i class="fab fa-github"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/chandy-srin-b1b93b3a0/" target="_blank" rel="noopener" class="social-link" title="LinkedIn">
+              <i class="fab fa-linkedin-in"></i>
+            </a>
+            <a href="https://t.me/dyysrin" target="_blank" rel="noopener" class="social-link" title="Telegram">
+              <i class="fab fa-telegram-plane"></i>
+            </a>
+            <a href="mailto:chandy.srin@student.passerellesnumeriques.org" class="social-link" title="Email">
+              <i class="fas fa-envelope"></i>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-portrait">
+          <div class="portrait-card">
+            <img src="/images/about.png" alt="Srin Chandy">
+          </div>
+          <div class="hero-badge glass-card">
+            <i class="fas fa-code"></i>
+            <span data-en="Web Development Intern" data-km="អ្នកហាត់ការផ្នែក Web Development">Web Development Intern</span>
+          </div>
+          <span class="float-shape shape-one"></span>
+          <span class="float-shape shape-two"></span>
+        </div>
+      </div>
+    </section>
+
+    <section id="about">
+      <div class="section-content two-column">
+        <div>
+          <span class="eyebrow" data-en="About Me" data-km="អំពីខ្ញុំ">About Me</span>
+          <h2 data-en="Building thoughtful web experiences with care." data-km="បង្កើតបទពិសោធន៍គេហទំព័រដែលមានគុណភាព និងយកចិត្តទុកដាក់។">Building thoughtful web experiences with care.</h2>
+          <p data-en="I am a web development student at Passerelles Numeriques Cambodia, preparing for a web development internship. My CV highlights hands-on practice with HTML, CSS, JavaScript, Node.js, MySQL, Git, Docker, AWS, and Postman." data-km="ខ្ញុំជាសិស្សផ្នែកអភិវឌ្ឍន៍គេហទំព័រនៅ Passerelles Numeriques Cambodia ហើយកំពុងត្រៀមខ្លួនសម្រាប់ឱកាសហាត់ការផ្នែក Web Development។ ប្រវត្តិរូបរបស់ខ្ញុំបង្ហាញពីបទពិសោធន៍អនុវត្តជាមួយ HTML, CSS, JavaScript, Node.js, MySQL, Git, Docker, AWS និង Postman។">
+            I am a web development student at Passerelles Numeriques Cambodia, preparing for a web development internship.
+            My CV highlights hands-on practice with HTML, CSS, JavaScript, Node.js, MySQL, Git, Docker, AWS, and Postman.
+          </p>
+          <p data-en="I am a quick learner and strong team player who enjoys solving real problems, improving small details, and writing clean, maintainable code." data-km="ខ្ញុំរៀនបានលឿន សហការជាក្រុមបានល្អ ចូលចិត្តដោះស្រាយបញ្ហាពិត កែលម្អព័ត៌មានលម្អិតតូចៗ និងសរសេរកូដឱ្យស្អាតងាយថែទាំ។">
+            I am a quick learner and strong team player who enjoys solving real problems, improving small details, and
+            writing clean, maintainable code.
+          </p>
+        </div>
+
+        <div class="about-card">
+          <img src="images/about.png" alt="Srin Chandy working on technology">
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-content">
+        <div class="section-heading">
+          <span class="eyebrow" data-en="Technologies Used" data-km="បច្ចេកវិទ្យាដែលបានប្រើ">Technologies Used</span>
+          <h2 data-en="My web development stack, from interface to deployment." data-km="បច្ចេកវិទ្យាអភិវឌ្ឍន៍គេហទំព័ររបស់ខ្ញុំ ចាប់ពីផ្ទៃប្រើប្រាស់ដល់ការដាក់ឱ្យប្រើប្រាស់។">My web development stack, from interface to deployment.</h2>
+        </div>
+
+        <div class="skills-grid">
+          <article class="glass-card skill-category">
+            <div class="skill-icon"><i class="fas fa-globe"></i></div>
+            <h3 data-en="Front-End" data-km="ផ្នែកមុខ">Front-End</h3>
+            <div class="skill-tags">
+              <span>Vue.js</span>
+              <span>HTML5</span>
+              <span>CSS3</span>
+              <span>JavaScript</span>
+              <span>Tailwind CSS</span>
+            </div>
+          </article>
+
+          <article class="glass-card skill-category">
+            <div class="skill-icon green"><i class="fas fa-database"></i></div>
+            <h3 data-en="Back-End" data-km="ផ្នែកក្រោយ">Back-End</h3>
+            <div class="skill-tags">
+              <span>Node.js</span>
+              <span>Laravel</span>
+              <span>MySQL</span>
+            </div>
+          </article>
+
+          <article class="glass-card skill-category">
+            <div class="skill-icon blue"><i class="fas fa-code-branch"></i></div>
+            <h3 data-en="Tools" data-km="ឧបករណ៍">Tools</h3>
+            <div class="skill-tags">
+              <span>GitHub</span>
+              <span>VS Code</span>
+              <span>Postman</span>
+              <span>Docker</span>
+              <span>AWS</span>
+            </div>
+          </article>
+
+          <article class="glass-card skill-category">
+            <div class="skill-icon pink"><i class="fas fa-palette"></i></div>
+            <h3 data-en="Strengths" data-km="ចំណុចខ្លាំង">Strengths</h3>
+            <div class="skill-tags">
+              <span data-en="Problem-Solving" data-km="ការដោះស្រាយបញ្ហា">Problem-Solving</span>
+              <span data-en="Teamwork" data-km="ការងារជាក្រុម">Teamwork</span>
+              <span data-en="Willingness to Learn" data-km="ចង់រៀនបន្ថែម">Willingness to Learn</span>
+              <span data-en="Clear Communication" data-km="ការទំនាក់ទំនងច្បាស់លាស់">Clear Communication</span>
+              <span data-en="Leadership " data-km="ភាពជាអ្នកដឹកនាំ">Leadership</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="tools-used glass-card">
+          <h3 data-en="How I Build Websites" data-km="របៀបដែលខ្ញុំបង្កើតគេហទំព័រ">How I Build Websites</h3>
+          <p data-en="I build responsive pages, connect them with back-end logic and databases, test APIs with Postman, manage code with Git, and keep learning through real school and personal projects." data-km="ខ្ញុំបង្កើតទំព័រដែលឆ្លើយតបល្អ ភ្ជាប់ជាមួយ logic ផ្នែកក្រោយ និង database សាកល្បង API ជាមួយ Postman គ្រប់គ្រងកូដដោយ Git ហើយបន្តរៀនតាមរយៈគម្រោងសាលា និងគម្រោងផ្ទាល់ខ្លួន។">I build responsive pages, connect them with back-end logic and databases, test APIs with Postman, manage code with Git, and keep learning through real school and personal projects.</p>
+          <div class="tools-list">
+            <span>HTML / CSS / JavaScript</span>
+            <span>Node.js / Laravel</span>
+            <span>MySQL / Database</span>
+            <span>Git / Docker / AWS</span>
+            <span>Postman / API Testing</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-content">
+        <div class="section-heading">
+          <span class="eyebrow" data-en="Featured Work" data-km="ស្នាដៃសំខាន់ៗ">Featured Work</span>
+          <h2 data-en="Projects I built." data-km="គម្រោងដែលខ្ញុំបានបង្កើត។">Projects I built.</h2>
+          <p class="section-lead" data-en="These are finished or practice projects. Each card shows the project type, main tools, and links." data-km="នេះជាគម្រោងដែលបានបញ្ចប់ ឬគម្រោងហាត់អនុវត្ត។ កាតនីមួយៗបង្ហាញប្រភេទគម្រោង ឧបករណ៍សំខាន់ និងតំណភ្ជាប់។">These are finished or practice projects. Each card shows the project type, main tools, and links.</p>
+        </div>
+
+        <div class="projects">
+          <article class="project glass-card">
+            <img src="images/handmade.png" alt="Khmer Handmade Website" loading="lazy">
+            <div class="project-content">
+              <span class="project-type" data-en="E-commerce" data-km="គេហទំព័រលក់ទំនិញ">E-commerce</span>
+              <h3>Khmer Handmade</h3>
+              <div class="project-tools">HTML, CSS, JavaScript, Vercel</div>
+              <p data-en="An online shop concept for Khmer handmade products with responsive pages and smooth browsing." data-km="គំនិតហាងអនឡាញសម្រាប់ផលិតផលធ្វើដោយដៃរបស់ខ្មែរ មានទំព័រឆ្លើយតបល្អ និងងាយស្រួលមើល។">An online shop concept for Khmer handmade products with responsive pages and smooth browsing.</p>
+              <div class="project-links">
+                <a href="https://wed-desgin-project.vercel.app/" target="_blank" rel="noopener" class="btn btn-small" data-en="Live Demo" data-km="មើលគំរូ">Live Demo</a>
+                <a href="https://github.com/wed-desgin-project" target="_blank" rel="noopener" class="btn-outline">GitHub</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project glass-card">
+            <img src="images/tictaetoe.png" alt="Tic Tac Toe Game" loading="lazy">
+            <div class="project-content">
+              <span class="project-type" data-en="JavaScript Game" data-km="ហ្គេម JavaScript">JavaScript Game</span>
+              <h3>Tic-Tac-Toe Game</h3>
+              <div class="project-tools">HTML, CSS, JavaScript</div>
+              <p data-en="A simple interactive browser game with clean logic, playful states, and a mobile-friendly layout." data-km="ហ្គេមលេងក្នុង browser ដែលមាន logic ស្អាត ស្ថានភាពលេងច្បាស់ និង layout សមស្របសម្រាប់ទូរស័ព្ទ។">A simple interactive browser game with clean logic, playful states, and a mobile-friendly layout.</p>
+              <div class="project-links">
+                <a href="https://wed-desgin-project.vercel.app/" target="_blank" rel="noopener" class="btn btn-small" data-en="Live Demo" data-km="មើលគំរូ">Live Demo</a>
+                <a href="https://github.com/wed-desgin-project" target="_blank" rel="noopener" class="btn-outline">GitHub</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project glass-card">
+            <img src="images/inventory.png" alt="Inventory Management System" loading="lazy">
+            <div class="project-content">
+              <span class="project-type" data-en="Management Tool" data-km="ឧបករណ៍គ្រប់គ្រង">Management Tool</span>
+              <h3>Inventory Management</h3>
+              <div class="project-tools">JavaScript, Local Storage, Netlify</div>
+              <p data-en="A stock management project with product tracking, search, filtering, and simple business workflows." data-km="គម្រោងគ្រប់គ្រងស្តុកដែលមានការតាមដានផលិតផល ស្វែងរក ចម្រោះ និងលំហូរការងារអាជីវកម្មសាមញ្ញ។">A stock management project with product tracking, search, filtering, and simple business workflows.</p>
+              <div class="project-links">
+                <a href="https://inventory-projectjavascript.netlify.app/" target="_blank" rel="noopener" class="btn btn-small" data-en="Live Demo" data-km="មើលគំរូ">Live Demo</a>
+                <a href="https://github.com/wed-desgin-project" target="_blank" rel="noopener" class="btn-outline">GitHub</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project glass-card">
+            <img src="images/flower-shop-preview.svg" alt="Flower Shop Landing Page" loading="lazy">
+            <div class="project-content">
+              <span class="project-type" data-en="Landing Page" data-km="ទំព័រផ្សព្វផ្សាយ">Landing Page</span>
+              <h3>Flower Shop</h3>
+              <div class="project-tools">HTML, CSS, Responsive Design</div>
+              <p data-en="A floral storefront homepage with elegant branding, clear navigation, and product-focused sections." data-km="ទំព័រដើមសម្រាប់ហាងផ្កា ដែលមានរចនាប័ទ្មស្អាត ម៉ឺនុយច្បាស់ និងផ្នែកបង្ហាញផលិតផល។">A floral storefront homepage with elegant branding, clear navigation, and product-focused sections.</p>
+              <div class="project-links">
+                <a href="https://project-html-git-g9.vercel.app/" target="_blank" rel="noopener" class="btn btn-small" data-en="Live Demo" data-km="មើលគំរូ">Live Demo</a>
+                <a href="https://project-html-git-g9.vercel.app/pages/productPage.html" target="_blank" rel="noopener" class="btn-outline" data-en="Product Page" data-km="ទំព័រផលិតផល">Product Page</a>
+              </div>
+            </div>
+          </article>
+
+          <article class="project glass-card featured-project">
+            <img src="images/alumni.png" alt="Alumni Media Platform" loading="lazy">
+            <div class="project-content">
+              <span class="project-type">Laravel and Vue.js</span>
+              <h3>Alumni Media Platform</h3>
+              <div class="project-tools">Laravel, Vue.js, MySQL</div>
+              <p data-en="A platform connecting PNC students and alumni with posts, comments, and career guidance interactions." data-km="វេទិកាដែលភ្ជាប់សិស្ស PNC និងអតីតសិស្ស ដោយមាន post, comment និងការណែនាំអំពីអាជីព។">A platform connecting PNC students and alumni with posts, comments, and career guidance interactions.</p>
+              <div class="project-links">
+                <a href="#contact" class="btn btn-small" data-en="Request Demo" data-km="ស្នើសុំមើលគំរូ">Request Demo</a>
+                <a href="#contact" class="btn-outline" data-en="Ask Details" data-km="សួរព័ត៌មានលម្អិត">Ask Details</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="resume">
+      <div class="section-content">
+        <div class="section-heading">
+          <span class="eyebrow" data-en="Resume" data-km="ប្រវត្តិរូប">Resume</span>
+          <h2 data-en="Experience and education timeline." data-km="បទពិសោធន៍ និងការអប់រំ។">Experience and education timeline.</h2>
+          <p class="section-lead" data-en="This section explains my learning path and the experience behind my work." data-km="ផ្នែកនេះពន្យល់អំពីដំណើររៀនសូត្រ និងបទពិសោធន៍នៅពីក្រោយការងាររបស់ខ្ញុំ។">This section explains my learning path and the experience behind my work.</p>
+        </div>
+
+        <div class="resume-layout">
+          <div class="timeline glass-card">
+            <h3 class="timeline-title"><i class="fas fa-briefcase"></i> <span data-en="Experience Timeline" data-km="បន្ទាត់ពេលវេលាបទពិសោធន៍">Experience Timeline</span></h3>
+            <div id="experience-timeline">
+              <div class="timeline-item">
+              <span data-en="Education | 2024 - Present" data-km="ការអប់រំ | ២០២៤ - បច្ចុប្បន្ន">Education | 2024 - Present</span>
+              <h3 data-en="Associate Degree in Web Development" data-km="បរិញ្ញាបត្ររងផ្នែកអភិវឌ្ឍន៍គេហទំព័រ">Associate Degree in Web Development</h3>
+              <p>Passerelles Numeriques Cambodia</p>
+            </div>
+            <div class="timeline-item">
+              <span data-en="Project Practice | 2025" data-km="ការអនុវត្តគម្រោង | ២០២៥">Project Practice | 2025</span>
+              <h3 data-en="Web Development Internship Preparation" data-km="ការត្រៀមខ្លួនសម្រាប់ហាត់ការ Web Development">Web Development Internship Preparation</h3>
+              <p data-en="Built responsive school and personal projects using HTML, CSS, JavaScript, Node.js, Laravel, Vue.js, MySQL, Git, and API testing tools." data-km="បានបង្កើតគម្រោងសាលា និងគម្រោងផ្ទាល់ខ្លួនដែលឆ្លើយតបល្អ ដោយប្រើ HTML, CSS, JavaScript, Node.js, Laravel, Vue.js, MySQL, Git និងឧបករណ៍សាកល្បង API។">Built responsive school and personal projects using HTML, CSS, JavaScript, Node.js, Laravel, Vue.js, MySQL, Git, and API testing tools.</p>
+            </div>
+            <div class="timeline-item">
+              <span data-en="Professional Skills | Ongoing" data-km="ជំនាញវិជ្ជាជីវៈ | កំពុងបន្ត">Professional Skills | Ongoing</span>
+              <h3 data-en="UI, Teamwork, and Product Practice" data-km="UI ការងារជាក្រុម និងការអនុវត្តផលិតផល">UI, Teamwork, and Product Practice</h3>
+              <p data-en="Practicing design thinking, Agile collaboration, Git workflow, and clear communication across project teams." data-km="កំពុងអនុវត្ត design thinking ការសហការបែប Agile ការប្រើ Git workflow និងការទំនាក់ទំនងច្បាស់ក្នុងក្រុមគម្រោង។">Practicing design thinking, Agile collaboration, Git workflow, and clear communication across project teams.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="section-content contact-layout">
+        <div>
+          <span class="eyebrow" data-en="Contact" data-km="ទំនាក់ទំនង">Contact</span>
+          <h2 data-en="Let's work together." data-km="តោះធ្វើការជាមួយគ្នា។">Let's work together.</h2>
+          <p data-en="If you have a web development internship opportunity, project idea, or collaboration in mind, I would love to hear from you." data-km="បើអ្នកមានឱកាសហាត់ការផ្នែក Web Development គំនិតគម្រោង ឬចង់សហការជាមួយខ្ញុំ ខ្ញុំរីករាយក្នុងការទទួលសារ។">
+            If you have a web development internship opportunity, project idea, or collaboration in mind, I would love to hear from you.
+          </p>
+          <div class="contact-methods">
+            <a href="mailto:chandy.srin@student.passerellesnumeriques.org" class="contact-card">
+              <i class="fas fa-envelope"></i>
+              <span data-en="Email" data-km="អ៊ីមែល">Email</span>
+              <strong>chandy.srin@student.passerellesnumeriques.org</strong>
+            </a>
+            <a href="https://t.me/dyysrin" target="_blank" rel="noopener" class="contact-card">
+              <i class="fab fa-telegram-plane"></i>
+              <span>Telegram</span>
+              <strong>@dyysrin</strong>
+            </a>
+          </div>
+        </div>
+
+        <form class="glass-card contact-form" onsubmit="sendContactMessage(event)">
+          <label for="name" data-en="Name" data-km="ឈ្មោះ">Name</label>
+          <input id="name" name="name" type="text" placeholder="Your name" data-placeholder-en="Your name" data-placeholder-km="ឈ្មោះរបស់អ្នក" required>
+
+          <label for="email" data-en="Email" data-km="អ៊ីមែល">Email</label>
+          <input id="email" name="email" type="email" placeholder="your.email@example.com" data-placeholder-en="your.email@example.com" data-placeholder-km="អ៊ីមែលរបស់អ្នក" required>
+
+          <label for="message" data-en="Message" data-km="សារ">Message</label>
+          <textarea id="message" name="message" rows="6" placeholder="Tell me about your project or just say hello." data-placeholder-en="Tell me about your project or just say hello." data-placeholder-km="ប្រាប់ខ្ញុំអំពីគម្រោងរបស់អ្នក ឬផ្ញើសារសួស្តី។" required></textarea>
+
+          <button class="btn btn-primary" type="submit"><span data-en="Send Message" data-km="ផ្ញើសារ">Send Message</span> <i class="fas fa-paper-plane"></i></button>
+          <p class="form-note" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p data-en="(c) 2026 Srin Chandy. All rights reserved." data-km="(c) ២០២៦ Srin Chandy. រក្សាសិទ្ធិគ្រប់យ៉ាង។">(c) 2026 Srin Chandy. All rights reserved.</p>
+    <p class="footer-admin"><a href="admin.html" data-en="Admin" data-km="អ្នកគ្រប់គ្រង">Admin</a></p>
+  </footer>
+
+  <button id="back-to-top" onclick="scrollToTop()" title="Back to top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/portfolio-data.js"></script>
+  <script src="js/script.js"></script>
+</body>
+
+</html>
